@@ -6,12 +6,14 @@ public class MainMenuLauncher : MonoBehaviour
     public MenuManager menuManager;
 
 
-    public Button temp;
+    public void Quit()
+    {
+        Application.Quit();
+    }
+
 
     private void Start()
     {
         menuManager.OpenMenu(Menu.MenuName.MainMenu);
-
-        temp.onClick.AddListener(() => Debug.Log("Click"));
     }
 }

@@ -5,6 +5,7 @@ public class Menu : MonoBehaviour
     public enum MenuName : byte
     {
         MainMenu,
+        Settings,
         None
     }
 
