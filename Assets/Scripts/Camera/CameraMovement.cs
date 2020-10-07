@@ -1,9 +1,21 @@
 ﻿using UnityEngine;
 using UnityEngine.UIElements;
+using UnityEngineInternal;
 
 public class CameraMovement : MonoBehaviour
 {
     public Camera mainCamera = null;
+
+    public int countOfZoomSteps = 20;
+
+    public float minFieldOfView = 40f;
+    public float maxFieldOfView = 100f;
+
+    public float minCameraHeight = 5f;
+    public float maxCameraHeight = 25f;
+
+    public float minCameraRollAngle = 40f;
+    public float maxCameraRollAngle = 60f;
 
     public bool needDrawGizmos = false;
     public float gizmosSphereSize = 0.1f;
@@ -22,6 +34,7 @@ public class CameraMovement : MonoBehaviour
     private bool isAltKeyPressed = false;
     private bool isLeftMouseButtonPressed = false;
 
+    private int currentZoomStep = -1;
 
     private void Move()
     {
@@ -61,6 +74,67 @@ public class CameraMovement : MonoBehaviour
         SetRotationAround(
             clickedPointOnPlaneFromCenterPoint,
             angleOfScreenCenterToMouse - clickedAngleOfScreenCenterToMouse);
+    }
+
+    private void SetCameraHeightByZoomStep()
+    {
+        float zoomCoefficient = currentZoomStep / ((float) countOfZoomSteps);
+
+        float currentHeight = zoomCoefficient * (maxCameraHeight - minCameraHeight) + minCameraHeight;
+
+        Vector3 position = transform.position;
+        position.y = currentHeight;
+        transform.position = position;
+    }
+
+    private void SetFieldOfViewByZoomStep()
+    {
+        float zoomCoefficient = currentZoomStep / ((float) countOfZoomSteps);
+
+        float currentFieldOfView = zoomCoefficient * (maxFieldOfView - minFieldOfView) + minFieldOfView;
+
+        mainCamera.fieldOfView = currentFieldOfView;
+    }
+
+    private void SetCameraRollByZoomStep()
+    {
+        float zoomCoefficient = currentZoomStep / ((float) countOfZoomSteps);
+        float inverseZoomCoefficient = 1f - zoomCoefficient;
+
+        float currentAngle = inverseZoomCoefficient * (maxCameraRollAngle - minCameraRollAngle) + minCameraRollAngle;
+
+        Vector3 rotation = transform.eulerAngles;
+        rotation.x = currentAngle;
+        transform.eulerAngles = rotation;
+    }
+
+    private void InitZoom()
+    {
+        float currentFieldOfView = mainCamera.fieldOfView;
+
+        currentZoomStep = Mathf.RoundToInt(countOfZoomSteps * (currentFieldOfView - minFieldOfView) / (maxFieldOfView - minFieldOfView));
+        currentZoomStep = Mathf.Clamp(currentZoomStep, 0, countOfZoomSteps);
+        
+        SetCameraHeightByZoomStep();
+        SetFieldOfViewByZoomStep();
+        SetCameraRollByZoomStep();
+    }
+
+    private void Zoom()
+    {
+        float mouseWheelDelta = Input.mouseScrollDelta.y;
+
+        if (Mathf.Abs(mouseWheelDelta) < Mathf.Epsilon)
+        {
+            return;
+        }
+
+        currentZoomStep -= Mathf.RoundToInt(mouseWheelDelta);
+        currentZoomStep = Mathf.Clamp(currentZoomStep, 0, countOfZoomSteps);
+
+        SetCameraHeightByZoomStep();
+        SetFieldOfViewByZoomStep();
+        SetCameraRollByZoomStep();
     }
 
     private Vector2 ScreenCenterToPointVector(Vector2 point)
@@ -122,6 +196,8 @@ public class CameraMovement : MonoBehaviour
         {
             mainCamera = GetComponent<Camera>();
         }
+
+        InitZoom();
     }
 
     private void Update()
@@ -159,6 +235,8 @@ public class CameraMovement : MonoBehaviour
         {
             Rotate();
         }
+
+        Zoom();
     }
 
     private void OnDrawGizmos()
