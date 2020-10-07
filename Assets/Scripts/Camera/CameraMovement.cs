@@ -1,6 +1,5 @@
 ﻿using UnityEngine;
 using UnityEngine.UIElements;
-using UnityEngineInternal;
 
 public class CameraMovement : MonoBehaviour
 {
