@@ -5,7 +5,7 @@ using UnityEngine;
 public class MainBase : MonoBehaviour
 {
     [SerializeField]
-    private GameResouces resouces;
+    private GameResoucesStorage resouces;
     private People people;
     [SerializeField]
     private bool isFirstInColony;
