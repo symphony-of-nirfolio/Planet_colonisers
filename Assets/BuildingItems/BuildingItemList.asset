@@ -16,3 +16,11 @@ MonoBehaviour:
   - {fileID: 11400000, guid: df12b8ee47827644c9b82439343fdcbe, type: 2}
   - {fileID: 11400000, guid: eaf6012da42411347a28c8c48eeeb1d0, type: 2}
   - {fileID: 11400000, guid: d5f1db29f3cba3d4c8b40502026eb7b6, type: 2}
+  buildingTypeItemToBuildingItems:
+  - buildingTypeItem: {fileID: 11400000, guid: e2d19bf1bc8e7ba40aef7af34bb63403, type: 2}
+    buildingItems:
+    - {fileID: 11400000, guid: df12b8ee47827644c9b82439343fdcbe, type: 2}
+  - buildingTypeItem: {fileID: 11400000, guid: f79d834f2a1297744ad35cc46852b9db, type: 2}
+    buildingItems:
+    - {fileID: 11400000, guid: eaf6012da42411347a28c8c48eeeb1d0, type: 2}
+    - {fileID: 11400000, guid: d5f1db29f3cba3d4c8b40502026eb7b6, type: 2}

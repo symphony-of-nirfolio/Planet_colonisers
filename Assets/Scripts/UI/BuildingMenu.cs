@@ -6,22 +6,21 @@ public class BuildingMenu : MonoBehaviour
     public Builder builder;
     public MenuManager menuManager;
 
-    public RectTransform buildingRectTransform;
+    public RectTransform buildingLayoutGroup;
+    public RectTransform buildingTypeLayoutGroup;
 
-    public GameObject buildingButtonPrefab;
+    public GameObject buildingItemPrefab;
+    public GameObject buildingTypeItemPrefab;
 
-    public void Start()
+
+    private void UpdateBuildingItemList(BuildingItem[] buildingItems)
     {
-        Debug.Assert(buildingItemList, "Building Item List doesn't set");
-        Debug.Assert(builder, "Builder doesn't set");
-        Debug.Assert(menuManager, "Menu Manager doesn't set");
-        Debug.Assert(buildingRectTransform, "Building Rect Transform doesn't set");
-        Debug.Assert(buildingButtonPrefab, "Building Button Prefab doesn't set");
+        buildingLayoutGroup.DetachChildren();
 
-        foreach (BuildingItem buildingItem in buildingItemList.buildingItems)
+        foreach (BuildingItem buildingItem in buildingItems)
         {
-            GameObject buildingButton = Instantiate(buildingButtonPrefab, buildingRectTransform);
-            
+            GameObject buildingButton = Instantiate(buildingItemPrefab, buildingLayoutGroup);
+
             BuildingMenuItem buildingMenuItem = buildingButton.GetComponent<BuildingMenuItem>();
             buildingMenuItem.image.sprite = buildingItem.buildingSprite;
             buildingMenuItem.nameText.text = buildingItem.name;
@@ -31,5 +30,29 @@ public class BuildingMenu : MonoBehaviour
                 menuManager.CloseMenu(Menu.MenuName.BuildingMenu);
             });
         }
+    }
+
+    public void Start()
+    {
+        Debug.Assert(buildingItemList, "Building Item List doesn't set");
+        Debug.Assert(builder, "Builder doesn't set");
+        Debug.Assert(menuManager, "Menu Manager doesn't set");
+        Debug.Assert(buildingLayoutGroup, "Building Layout Group doesn't set");
+        Debug.Assert(buildingTypeLayoutGroup, "Building Type Layout Group doesn't set");
+        Debug.Assert(buildingItemPrefab, "Building Item Prefab doesn't set");
+        Debug.Assert(buildingTypeItemPrefab, "Building Type Item Prefab doesn't set");
+
+        foreach (BuildingItemList.BuildingTypeItemToBuildingItem buildingTypeItemToBuildingItem in
+            buildingItemList.buildingTypeItemToBuildingItems)
+        {
+            GameObject buildingTypeItem = Instantiate(buildingTypeItemPrefab, buildingTypeLayoutGroup);
+
+            BuildingMenuItem buildingMenuItem = buildingTypeItem.GetComponent<BuildingMenuItem>();
+            buildingMenuItem.image.sprite = buildingTypeItemToBuildingItem.buildingTypeItem.buildingSprite;
+
+            buildingMenuItem.SetCallBack(() => UpdateBuildingItemList(buildingTypeItemToBuildingItem.buildingItems));
+        }
+
+        UpdateBuildingItemList(buildingItemList.buildingTypeItemToBuildingItems[0].buildingItems);
     }
 }

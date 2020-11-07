@@ -14,14 +14,32 @@ public class Builder : MonoBehaviour
     private GameObject currentBuilding = null;
     private BuildHelper currentBuildHelper = null;
 
+    private bool isNeedToShow = false;
+
 
     public void SetCurrentBuilding(GameObject buildingPrefab)
     {
+        isNeedToShow = true;
         currentBuildingPrefab = buildingPrefab;
 
         UpdateCurrentBuilding();
     }
 
+
+    private bool IntersectionRayFromMouseWithXOZPlane(out Vector3 intersectPoint)
+    {
+        Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
+        Plane plane = new Plane(Vector3.up, Vector3.zero);
+
+        if (plane.Raycast(ray, out float enter))
+        {
+            intersectPoint = ray.GetPoint(enter);
+            return true;
+        }
+
+        intersectPoint = Vector3.zero;
+        return false;
+    }
 
     private void UpdateCurrentBuilding()
     {
@@ -30,15 +48,24 @@ public class Builder : MonoBehaviour
             Destroy(currentBuilding);
         }
 
-        currentBuilding = Instantiate(currentBuildingPrefab);
-        currentBuildHelper = currentBuilding.GetComponent<BuildHelper>();
+        if (IntersectionRayFromMouseWithXOZPlane(out Vector3 intersectPoint))
+        {
+            currentBuilding = Instantiate(
+                currentBuildingPrefab,
+                intersectPoint + Vector3.up * preViewOffset,
+                Quaternion.identity);
+            currentBuildHelper = currentBuilding.GetComponent<BuildHelper>();
+        }
     }
 
     private void AddCurrentBuildingToMap()
     {
         if (currentBuilding)
         {
-            Instantiate(currentBuildingPrefab, currentBuilding.transform.position - Vector3.up * preViewOffset, Quaternion.identity);
+            Instantiate(
+                currentBuildingPrefab,
+                currentBuilding.transform.position - Vector3.up * preViewOffset,
+                Quaternion.identity);
         }
     }
 
@@ -50,15 +77,25 @@ public class Builder : MonoBehaviour
 
     private void Update()
     {
-        if (currentBuilding)
+        if (Input.GetKeyDown(KeyCode.Escape) ||
+            Input.GetMouseButtonDown((int) MouseButton.RightMouse))
         {
-            Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
+            isNeedToShow = false;
+            Destroy(currentBuilding);
+        }
 
-            Plane plane = new Plane(Vector3.up, Vector3.zero);
-
-            if (plane.Raycast(ray, out float enter))
+        if (isNeedToShow)
+        {
+            if (IntersectionRayFromMouseWithXOZPlane(out Vector3 intersectPoint))
             {
-                currentBuilding.transform.position = ray.GetPoint(enter) + Vector3.up * preViewOffset;
+                if (!currentBuilding)
+                {
+                    UpdateCurrentBuilding();
+                }
+                else
+                {
+                    currentBuilding.transform.position = intersectPoint + Vector3.up * preViewOffset;
+                }
 
                 if (!currentBuildHelper.IsCollideWithOtherBuildings)
                 {
@@ -69,6 +106,10 @@ public class Builder : MonoBehaviour
                     currentBuildHelper.SetMaterialColor(invalidPositionColor);
                 }
             }
+            else
+            {
+                Destroy(currentBuilding);
+            }
         }
     }
 
@@ -76,7 +117,8 @@ public class Builder : MonoBehaviour
     {
         if (currentBuilding)
         {
-            if (!currentBuildHelper.IsCollideWithOtherBuildings && Input.GetMouseButtonDown((int) MouseButton.LeftMouse))
+            if (!currentBuildHelper.IsCollideWithOtherBuildings &&
+                Input.GetMouseButtonDown((int) MouseButton.LeftMouse))
             {
                 AddCurrentBuildingToMap();
             }
