@@ -13,3 +13,4 @@ MonoBehaviour:
   m_Name: Sphere1
   m_EditorClassIdentifier: 
   buildingPrefab: {fileID: 8269890594544446894, guid: 3d30ddb7c34a4d44f94597a1f89b4a1a, type: 3}
+  buildingSprite: {fileID: 21300000, guid: 1605121390bcc58419918536e4055f56, type: 3}

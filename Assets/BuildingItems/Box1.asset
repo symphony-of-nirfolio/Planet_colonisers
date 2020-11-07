@@ -13,3 +13,4 @@ MonoBehaviour:
   m_Name: Box1
   m_EditorClassIdentifier: 
   buildingPrefab: {fileID: 3011815929669475816, guid: 30d0489b02444984e8de9537eee24871, type: 3}
+  buildingSprite: {fileID: 21300000, guid: bc64a579620046a4eaa6a46da8aebe4a, type: 3}

@@ -6,7 +6,9 @@ public class Menu : MonoBehaviour
     {
         MainMenu,
         Settings,
-        None
+        BuildingMenu,
+        None,
+        CountOf
     }
 
 
