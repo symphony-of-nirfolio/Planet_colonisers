@@ -8,6 +8,7 @@ public class Menu : MonoBehaviour
         Settings,
         Pause,
         Building,
+        ExitWithoutSaving,
         None,
         CountOf
     }
