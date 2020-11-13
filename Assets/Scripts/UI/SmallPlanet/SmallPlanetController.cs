@@ -38,4 +38,13 @@ public class SmallPlanetController : MonoBehaviour
         isSelected = false;
         select.text = "";
     }
+
+
+    private void Start()
+    {
+        Debug.Assert(planet, "Planet doesn't set");
+        Debug.Assert(canvas, "Canvas doesn't set");
+        Debug.Assert(planetName, "Planet Name doesn't set");
+        Debug.Assert(select, "Select doesn't set");
+    }
 }
