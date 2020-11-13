@@ -1,10 +1,15 @@
 ﻿using UnityEngine;
-using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class MainMenuLauncher : MonoBehaviour
 {
     public MenuManager menuManager;
 
+
+    public void StartGame()
+    {
+        SceneManager.LoadScene("GameScene");
+    }
 
     public void Quit()
     {
@@ -14,6 +19,8 @@ public class MainMenuLauncher : MonoBehaviour
 
     private void Start()
     {
-        menuManager.OpenMenu(Menu.MenuName.MainMenu);
+        Debug.Assert(menuManager, "Menu Manager doesn't set");
+
+        menuManager.OpenMenu(Menu.MenuName.Main);
     }
 }
