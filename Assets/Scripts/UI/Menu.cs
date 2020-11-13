@@ -6,9 +6,13 @@ public class Menu : MonoBehaviour
     {
         Main,
         Settings,
+        Pause,
+        Building,
+        ExitWithoutSaving,
         Singleplayer,
         SingleplayerNewGame,
-        None
+        None,
+        CountOf
     }
 
 
