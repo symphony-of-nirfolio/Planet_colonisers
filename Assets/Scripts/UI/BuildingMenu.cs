@@ -2,6 +2,8 @@
 
 public class BuildingMenu : MonoBehaviour
 {
+    public Freezer freezer;
+
     public BuildingItemList buildingItemList;
     public Builder builder;
     public MenuManager menuManager;
@@ -28,12 +30,14 @@ public class BuildingMenu : MonoBehaviour
             {
                 builder.SetCurrentBuilding(buildingItem.buildingPrefab);
                 menuManager.CloseMenu(Menu.MenuName.BuildingMenu);
+                freezer.InteractionUnfreeze();
             });
         }
     }
 
     public void Start()
     {
+        Debug.Assert(freezer, "Freezer doesn't set");
         Debug.Assert(buildingItemList, "Building Item List doesn't set");
         Debug.Assert(builder, "Builder doesn't set");
         Debug.Assert(menuManager, "Menu Manager doesn't set");

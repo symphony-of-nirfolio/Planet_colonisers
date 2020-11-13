@@ -445,6 +445,49 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   menuName: 2
   isOpen: 0
+--- !u!1 &492306781
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 492306783}
+  - component: {fileID: 492306782}
+  m_Layer: 0
+  m_Name: Freezer
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &492306782
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 492306781}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2dabd4790c90e514faaab3814f7ab780, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!4 &492306783
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 492306781}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 4
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &500304184
 GameObject:
   m_ObjectHideFlags: 0
@@ -928,6 +971,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9efce5cfc368bad4face466caffc1b72, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  freezer: {fileID: 492306782}
   buildingItemList: {fileID: 11400000, guid: 66ae4f37abb877344b57c04cc2767e41, type: 2}
   builder: {fileID: 706143129}
   menuManager: {fileID: 393141659}
@@ -1091,6 +1135,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6a88f8779e310f9459a468825f95489b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  freezer: {fileID: 492306782}
   mainCamera: {fileID: 1289447480}
   validPositionColor: {r: 0.019017458, g: 1, b: 0, a: 1}
   invalidPositionColor: {r: 1, g: 0, b: 0, a: 1}
@@ -1339,7 +1384,7 @@ Transform:
   - {fileID: 393141660}
   - {fileID: 708390705}
   m_Father: {fileID: 0}
-  m_RootOrder: 4
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &874049076
 GameObject:
@@ -2026,6 +2071,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ace1e095853bfef429e7c9df20ecbbc2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  freezer: {fileID: 492306782}
   mainCamera: {fileID: 1289447480}
   countOfZoomSteps: 20
   minFieldOfView: 40
@@ -2349,6 +2395,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 34253c534145777489cb3ddae9e7a739, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  freezer: {fileID: 492306782}
   menuManager: {fileID: 393141659}
 --- !u!4 &1461248348
 Transform:
@@ -2971,5 +3018,5 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 5
+  m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}

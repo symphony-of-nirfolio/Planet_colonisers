@@ -3,6 +3,8 @@ using UnityEngine.UIElements;
 
 public class Builder : MonoBehaviour
 {
+    public Freezer freezer;
+
     public Camera mainCamera;
 
     public Color validPositionColor;
@@ -72,50 +74,56 @@ public class Builder : MonoBehaviour
 
     private void Start()
     {
+        Debug.Assert(freezer, "Freezer doesn't set");
         Debug.Assert(mainCamera, "Main Camera doesn't set");
     }
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Escape) ||
-            Input.GetMouseButtonDown((int) MouseButton.RightMouse))
+        if (!freezer.IsInteractionFreeze &&
+            (Input.GetKeyDown(KeyCode.Escape) ||
+            Input.GetMouseButtonDown((int) MouseButton.RightMouse)))
         {
             isNeedToShow = false;
             Destroy(currentBuilding);
         }
 
-        if (isNeedToShow)
+        if (!isNeedToShow)
         {
-            if (IntersectionRayFromMouseWithXOZPlane(out Vector3 intersectPoint))
-            {
-                if (!currentBuilding)
-                {
-                    UpdateCurrentBuilding();
-                }
-                else
-                {
-                    currentBuilding.transform.position = intersectPoint + Vector3.up * preViewOffset;
-                }
+            return;
+        }
 
-                if (!currentBuildHelper.IsCollideWithOtherBuildings)
-                {
-                    currentBuildHelper.SetMaterialColor(validPositionColor);
-                }
-                else
-                {
-                    currentBuildHelper.SetMaterialColor(invalidPositionColor);
-                }
+        if (!freezer.IsInteractionFreeze &&
+            IntersectionRayFromMouseWithXOZPlane(out Vector3 intersectPoint))
+        {
+            if (currentBuilding)
+            {
+                currentBuilding.transform.position = intersectPoint + Vector3.up * preViewOffset;
             }
             else
             {
-                Destroy(currentBuilding);
+                UpdateCurrentBuilding();
             }
+
+            if (currentBuildHelper.IsCollideWithOtherBuildings)
+            {
+                currentBuildHelper.SetMaterialColor(invalidPositionColor);
+            }
+            else
+            {
+                currentBuildHelper.SetMaterialColor(validPositionColor);
+            }
+        }
+        else
+        {
+            Destroy(currentBuilding);
         }
     }
 
     private void LateUpdate()
     {
-        if (currentBuilding)
+        if (!freezer.IsInteractionFreeze &&
+            currentBuilding)
         {
             if (!currentBuildHelper.IsCollideWithOtherBuildings &&
                 Input.GetMouseButtonDown((int) MouseButton.LeftMouse))

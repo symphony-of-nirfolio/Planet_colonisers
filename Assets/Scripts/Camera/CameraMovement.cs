@@ -3,6 +3,8 @@ using UnityEngine.UIElements;
 
 public class CameraMovement : MonoBehaviour
 {
+    public Freezer freezer;
+
     public Camera mainCamera = null;
 
     public int countOfZoomSteps = 20;
@@ -191,6 +193,8 @@ public class CameraMovement : MonoBehaviour
 
     private void Awake()
     {
+        Debug.Assert(freezer, "Freezer doesn't set");
+
         if (!mainCamera)
         {
             mainCamera = GetComponent<Camera>();
@@ -201,6 +205,11 @@ public class CameraMovement : MonoBehaviour
 
     private void Update()
     {
+        if (freezer.IsInteractionFreeze)
+        {
+            return;
+        }
+
         if (Input.GetMouseButtonDown((int) MouseButton.MiddleMouse) ||
             (Input.GetMouseButton((int) MouseButton.MiddleMouse) &&
                 (Input.GetKeyDown(KeyCode.LeftAlt) || Input.GetKeyUp(KeyCode.LeftAlt))))

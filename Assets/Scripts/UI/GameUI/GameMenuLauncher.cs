@@ -2,11 +2,16 @@
 
 public class GameMenuLauncher : MonoBehaviour
 {
+    public Freezer freezer;
+
     public MenuManager menuManager;
 
 
     private void Start()
     {
+        Debug.Assert(menuManager, "Menu Manager doesn't set");
+        Debug.Assert(freezer, "Freezer doesn't set");
+
         menuManager.CloseAllMenus();
     }
     
@@ -14,13 +19,21 @@ public class GameMenuLauncher : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.B))
         {
-            menuManager.OpenMenu(Menu.MenuName.BuildingMenu);
+            if (!freezer.IsInteractionFreeze)
+            {
+                menuManager.OpenMenu(Menu.MenuName.BuildingMenu);
+                freezer.InteractionFreeze();
+            }
         }
         else if (Input.GetKeyDown(KeyCode.Escape))
         {
             if (menuManager.IsOpenMenu(Menu.MenuName.BuildingMenu))
             {
-                menuManager.CloseMenu(Menu.MenuName.BuildingMenu);
+                if (!freezer.IsFullFreeze)
+                {
+                    menuManager.CloseMenu(Menu.MenuName.BuildingMenu);
+                    freezer.InteractionUnfreeze();
+                }
             }
         }
     }
