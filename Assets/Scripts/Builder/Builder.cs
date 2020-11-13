@@ -16,12 +16,23 @@ public class Builder : MonoBehaviour
     private GameObject currentBuilding = null;
     private BuildHelper currentBuildHelper = null;
 
-    private bool isNeedToShow = false;
+    private bool isActive = false;
 
+
+    public bool IsActiveBuilder()
+    {
+        return isActive;
+    }
+
+    public void DeactivateBuilder()
+    {
+        isActive = false;
+        Destroy(currentBuilding);
+    }
 
     public void SetCurrentBuilding(GameObject buildingPrefab)
     {
-        isNeedToShow = true;
+        isActive = true;
         currentBuildingPrefab = buildingPrefab;
 
         UpdateCurrentBuilding();
@@ -80,15 +91,13 @@ public class Builder : MonoBehaviour
 
     private void Update()
     {
-        if (!freezer.IsInteractionFreeze &&
-            (Input.GetKeyDown(KeyCode.Escape) ||
-            Input.GetMouseButtonDown((int) MouseButton.RightMouse)))
+        if (!freezer.IsInteractionFreeze && 
+            Input.GetMouseButtonDown((int) MouseButton.RightMouse))
         {
-            isNeedToShow = false;
-            Destroy(currentBuilding);
+            DeactivateBuilder();
         }
 
-        if (!isNeedToShow)
+        if (!isActive)
         {
             return;
         }

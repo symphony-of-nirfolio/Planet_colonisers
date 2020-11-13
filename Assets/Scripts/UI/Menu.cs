@@ -4,9 +4,10 @@ public class Menu : MonoBehaviour
 {
     public enum MenuName : byte
     {
-        MainMenu,
+        Main,
         Settings,
-        BuildingMenu,
+        Pause,
+        Building,
         None,
         CountOf
     }

@@ -29,7 +29,7 @@ public class BuildingMenu : MonoBehaviour
             buildingMenuItem.SetCallBack(() =>
             {
                 builder.SetCurrentBuilding(buildingItem.buildingPrefab);
-                menuManager.CloseMenu(Menu.MenuName.BuildingMenu);
+                menuManager.CloseMenu(Menu.MenuName.Building);
                 freezer.InteractionUnfreeze();
             });
         }
