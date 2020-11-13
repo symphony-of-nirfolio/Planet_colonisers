@@ -790,18 +790,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cfc7964389a10014aa8091703e0359bd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  resource1: {fileID: 541191185}
-  resource2: {fileID: 123962326}
-  resource3: {fileID: 608036387}
-  resource4: {fileID: 1332443280}
-  resource5: {fileID: 529413432}
-  resource6: {fileID: 1549334958}
-  resource7: {fileID: 368739447}
-  resource8: {fileID: 534980094}
-  resource9: {fileID: 786311793}
-  resource10: {fileID: 1946974980}
-  resource11: {fileID: 1625105461}
-  resource12: {fileID: 886850114}
+  resourceCountTexts:
+  - {fileID: 541191185}
+  - {fileID: 123962326}
+  - {fileID: 608036387}
+  - {fileID: 1332443280}
+  - {fileID: 529413432}
+  - {fileID: 1549334958}
+  - {fileID: 368739447}
+  - {fileID: 534980094}
+  - {fileID: 786311793}
+  - {fileID: 1946974980}
+  - {fileID: 1625105461}
+  - {fileID: 886850114}
 --- !u!1001 &529413430
 PrefabInstance:
   m_ObjectHideFlags: 0
