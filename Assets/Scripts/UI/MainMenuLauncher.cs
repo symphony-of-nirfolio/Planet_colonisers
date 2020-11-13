@@ -14,6 +14,6 @@ public class MainMenuLauncher : MonoBehaviour
 
     private void Start()
     {
-        menuManager.OpenMenu(Menu.MenuName.MainMenu);
+        menuManager.OpenMenu(Menu.MenuName.Main);
     }
 }
