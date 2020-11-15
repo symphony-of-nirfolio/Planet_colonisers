@@ -9,6 +9,8 @@ public class Menu : MonoBehaviour
         Pause,
         Building,
         ExitWithoutSaving,
+        Singleplayer,
+        SingleplayerNewGame,
         None,
         CountOf
     }
