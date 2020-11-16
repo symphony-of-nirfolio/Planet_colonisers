@@ -3,6 +3,6 @@
 [CreateAssetMenu(menuName = "PlanetInfo/PlanetInfo")]
 public class PlanetInfo : ScriptableObject
 {
-    public string planetDescription;
+    public string description;
     public Material smallPlanetMaterial;
 }

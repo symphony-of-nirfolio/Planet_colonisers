@@ -1673,7 +1673,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d51ed6356b81c7a459e0e50ee65af799, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  colonyType: Default
+  colonyType: {fileID: 11400000, guid: 6f367fa34b18b004882f48cfcd3029fa, type: 2}
   mapSize: {fileID: 11400000, guid: 04891b6465c6005458703e08d2cfbc5d, type: 2}
   planetInfo: {fileID: 11400000, guid: 93a97cae676d37048884250a157ee939, type: 2}
 --- !u!4 &844052897

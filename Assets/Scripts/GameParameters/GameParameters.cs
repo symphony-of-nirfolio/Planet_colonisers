@@ -2,10 +2,7 @@
 
 public class GameParameters : MonoBehaviour
 {
-    // TODO: replace with future class
-    public string colonyType = "Default";
-
+    public ColonyType colonyType;
     public MapSize mapSize;
-
     public PlanetInfo planetInfo;
 }

@@ -8,6 +8,7 @@ public class NewGameMenu : MonoBehaviour
 {
     public Camera mainCamera;
 
+    public ColonyTypeList colonyTypeList;
     public MapSizeList mapSizeList;
     public PlanetInfoList planetInfoList;
 
@@ -24,7 +25,7 @@ public class NewGameMenu : MonoBehaviour
     private GameObject[] smallPlanets = new GameObject[0];
     private SmallPlanetController[] smallPlanetControllers;
 
-    private string currentColonyType;
+    private ColonyType currentColonyType;
     private MapSize currentMapSize;
     private PlanetInfo currentPlanetInfo;
 
@@ -53,16 +54,18 @@ public class NewGameMenu : MonoBehaviour
     {
         colonyTypeDropdown.ClearOptions();
 
-        List<string> options = new List<string>
+        List<string> options = new List<string>();
+
+        foreach (ColonyType colonyType in colonyTypeList.colonyTypes)
         {
-            "Default"
-        };
+            options.Add(colonyType.name);
+        }
 
         colonyTypeDropdown.AddOptions(options);
         colonyTypeDropdown.value = 0;
         colonyTypeDropdown.RefreshShownValue();
 
-        currentColonyType = options[0];
+        currentColonyType = colonyTypeList.colonyTypes[0];
     }
 
     private void InitMapSizes()
@@ -121,6 +124,7 @@ public class NewGameMenu : MonoBehaviour
     private void Awake()
     {
         Debug.Assert(mainCamera, "Main Camera doesn't set");
+        Debug.Assert(colonyTypeList, "Colony Type List doesn't set");
         Debug.Assert(mapSizeList, "Map Info List doesn't set");
         Debug.Assert(planetInfoList, "Planet Info List doesn't set");
         Debug.Assert(smallPlanetRectanglePrefab, "Small Planet Rectangle Prefab doesn't set");

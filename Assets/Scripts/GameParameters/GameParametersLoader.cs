@@ -3,11 +3,8 @@ using UnityEngine.SceneManagement;
 
 public class GameParametersLoader : MonoBehaviour
 {
-    // TODO: replace with future class
-    public string colonyType = "Default";
-
+    public ColonyType colonyType;
     public MapSize mapSize;
-
     public PlanetInfo planetInfo;
 
 
@@ -19,7 +16,7 @@ public class GameParametersLoader : MonoBehaviour
         }
         else
         {
-            Debug.Assert(colonyType == "Default", "Colony Type doesn't set");
+            Debug.Assert(colonyType, "Colony Type doesn't set");
             Debug.Assert(mapSize, "Map Size doesn't set");
             Debug.Assert(planetInfo, "Planet Info doesn't set");
 

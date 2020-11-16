@@ -1596,6 +1596,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mainCamera: {fileID: 963194227}
+  colonyTypeList: {fileID: 11400000, guid: d4bcec71e5c49f14494ae53c8628ceec, type: 2}
   mapSizeList: {fileID: 11400000, guid: 6f32de49333240f408c8eef0ef446e2c, type: 2}
   planetInfoList: {fileID: 11400000, guid: 24a00df69cc8a8f45ace543340a31a00, type: 2}
   smallPlanetRectanglePrefab: {fileID: 3810476444254322256, guid: 8a1464d2746277e4cba8197681c0f454, type: 3}
