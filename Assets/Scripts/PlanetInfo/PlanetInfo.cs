@@ -1,10 +1,8 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 
-[Serializable]
-public class PlanetInfo
+[CreateAssetMenu(menuName = "PlanetInfo/PlanetInfo")]
+public class PlanetInfo : ScriptableObject
 {
-    public string planetName;
     public string planetDescription;
     public Material smallPlanetMaterial;
 }

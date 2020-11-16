@@ -9,10 +9,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e27bdb3f6140a644e85394e77395d8d7, type: 3}
-  m_Name: Planet Info List
+  m_Script: {fileID: 11500000, guid: 3b6ebf52d0a4cba4885295b083fd2877, type: 3}
+  m_Name: Mars
   m_EditorClassIdentifier: 
-  planetInfos:
-  - planetName: Mars
-    planetDescription: ...
-    smallPlanetMaterial: {fileID: 2100000, guid: a2560bc1daeed6f45870e12c89645324, type: 2}
+  planetDescription: ...
+  smallPlanetMaterial: {fileID: 2100000, guid: a2560bc1daeed6f45870e12c89645324, type: 2}
