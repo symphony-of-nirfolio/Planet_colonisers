@@ -34,8 +34,8 @@ public class CameraMovement : MonoBehaviour
 
     private float clickedAngleOfScreenCenterToMouse = 0f;
 
-    private float helfWidth;
-    private float helfHeight;
+    private float halfWidth;
+    private float halfHeight;
 
     private bool isAltKeyPressed = false;
     private bool isLeftMouseButtonPressed = false;
