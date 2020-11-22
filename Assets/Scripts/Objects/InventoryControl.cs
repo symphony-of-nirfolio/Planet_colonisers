@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class InventoryControl : MonoBehaviour
 {
-    GameResoucesStorage storage;
+    GameResourcesStorage storage;
     // Start is called before the first frame update
     void Start()
     {
@@ -17,12 +17,12 @@ public class InventoryControl : MonoBehaviour
         
     }
 
-    public void AddResource(GameResources resource, float count)
+    public void AddResource(GameResourceType resource, float count)
     {
         storage.AddResource(resource, count);
     }
 
-    public void RemoveResource(GameResources resource, float count)
+    public void RemoveResource(GameResourceType resource, float count)
     {
         storage.RemoveResource(resource, count);
     }

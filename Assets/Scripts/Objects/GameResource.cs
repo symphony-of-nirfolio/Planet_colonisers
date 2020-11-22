@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-public enum GameResources
+public enum GameResourceType
 {
     food,
     oxygen,
@@ -22,7 +22,13 @@ public enum GameResources
     steel,
 }
 
-class GameResource
+public class GameResource
 {
-
+    public readonly GameResourceType resourceType;
+    public float amount;
+    public GameResource(GameResourceType resource)
+    {
+        resourceType = resource;
+        amount = 0;
+    }
 }
