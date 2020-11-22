@@ -62,8 +62,8 @@ public class CameraMovement : MonoBehaviour
         Vector3 offset = new Vector3(delta.x, 0f, delta.z);
 
         Vector3 position = clickedCameraPosition - offset;
-        position.x = Mathf.Clamp(position.x, -helfWidth, helfWidth);
-        position.z = Mathf.Clamp(position.z, -helfHeight, helfHeight);
+        position.x = Mathf.Clamp(position.x, -halfWidth, halfWidth);
+        position.z = Mathf.Clamp(position.z, -halfHeight, halfHeight);
 
         transform.position = position;
     }
