@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 89a829afb83c61e498da24fd8924d810, type: 3}
+  m_Name: MapSizeList
+  m_EditorClassIdentifier: 
+  mapSizes:
+  - {fileID: 11400000, guid: 606cab3f6cb7e694ebf5b0b85f92d35e, type: 2}
+  - {fileID: 11400000, guid: 41f00f42101c95f4d94117c7faec32b1, type: 2}
+  - {fileID: 11400000, guid: 04891b6465c6005458703e08d2cfbc5d, type: 2}
