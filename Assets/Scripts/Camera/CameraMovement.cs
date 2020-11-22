@@ -215,8 +215,8 @@ public class CameraMovement : MonoBehaviour
 
     private void Start()
     {
-        helfWidth = gameParameters.mapSize.width / 2f;
-        helfHeight = gameParameters.mapSize.height / 2f;
+        halfWidth = gameParameters.mapSize.width / 2f;
+        halfHeight = gameParameters.mapSize.height / 2f;
     }
 
     private void Update()
