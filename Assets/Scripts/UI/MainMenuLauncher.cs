@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using UnityEngine.UI;
 
 public class MainMenuLauncher : MonoBehaviour
 {
@@ -14,6 +13,8 @@ public class MainMenuLauncher : MonoBehaviour
 
     private void Start()
     {
-        menuManager.OpenMenu(Menu.MenuName.MainMenu);
+        Debug.Assert(menuManager, "Menu Manager doesn't set");
+
+        menuManager.OpenMenu(Menu.MenuName.Main);
     }
 }

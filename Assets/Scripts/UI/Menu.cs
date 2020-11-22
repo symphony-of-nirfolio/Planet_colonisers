@@ -4,9 +4,15 @@ public class Menu : MonoBehaviour
 {
     public enum MenuName : byte
     {
-        MainMenu,
+        Main,
         Settings,
-        None
+        Pause,
+        Building,
+        ExitWithoutSaving,
+        Singleplayer,
+        SingleplayerNewGame,
+        None,
+        CountOf
     }
 
 
