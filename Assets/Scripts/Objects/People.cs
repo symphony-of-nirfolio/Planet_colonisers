@@ -9,6 +9,11 @@ public class People
 {
     public int PeopleCount { get; private set; } = 0;
 
+    public People(int peopleCount = 0)
+    {
+        PeopleCount = peopleCount;
+    }
+
     public void AddPeople(int people)
     {
         Debug.Assert(people >= 0);

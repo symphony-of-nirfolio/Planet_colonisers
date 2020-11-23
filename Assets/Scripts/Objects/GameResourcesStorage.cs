@@ -11,13 +11,19 @@ public enum ResourcePack
     firstBaseResources
 }
 
-[CreateAssetMenu(menuName = "GameResoucesStorages/GameResoucesStorage")]
-public class GameResourcesStorage : ScriptableObject
+public class GameResourcesStorage
 {
-    //public ResourcePack currentPack;
     const int resourceCount = 12; 
 
     private GameResource[] storage = new GameResource[resourceCount];
+
+    public GameResourcesStorage(float defaultCount = 0)
+    {
+        for (int i = 0; i < resourceCount; ++i)
+        {
+            storage[i] = new GameResource((GameResourceType)i, defaultCount);
+        }    
+    }
 
     public void AddResource(GameResourceType resource, float count)
     {

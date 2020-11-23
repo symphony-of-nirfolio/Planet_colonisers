@@ -31,4 +31,10 @@ public class GameResource
         resourceType = resource;
         amount = 0;
     }
+
+    public GameResource(GameResourceType resource, float startAmont)
+    {
+        resourceType = resource;
+        amount = startAmont;
+    }
 }
