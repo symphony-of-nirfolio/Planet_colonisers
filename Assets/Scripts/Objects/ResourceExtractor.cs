@@ -8,28 +8,32 @@ using UnityEngine;
 class ResourceExtractor : MonoBehaviour
 {
 
-    GameResourcesStorage inventory;
-    GameResourceType resourceType;
-    ResourceDeposit deposit;
+    private GameResourcesStorage inventory;
+    private GameResourceType resourceType;
+    private ResourceDeposit deposit;
+    private bool hasDeposit = false;
 
     public float resourceGatherTime = 3.0f;
     public float resourcesPerGather = 1.0f;
     private float timer = 0.0f;
 
-    
     private void Update()
     {
-        timer += Time.deltaTime;
-
-        if (timer > resourceGatherTime)
+        if (hasDeposit)
         {
-            gatherResources();
-            timer -= resourceGatherTime;
+            timer += Time.deltaTime;
+
+            if (timer > resourceGatherTime)
+            {
+                gatherResources();
+                timer -= resourceGatherTime;
+            }
         }
     }
 
     public void SetDeposit(ResourceDeposit deposit)
     {
+        hasDeposit = true;
         this.deposit = deposit;
         resourceType = deposit.GetResourceType();
     }

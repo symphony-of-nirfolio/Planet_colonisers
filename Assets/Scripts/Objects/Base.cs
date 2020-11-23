@@ -9,6 +9,7 @@ public class Base : MonoBehaviour
     [SerializeField]
     private bool isFirstInColony;
     private List<InBaseObject> objects = new List<InBaseObject>();
+    public bool isEnabled = false;
 
     void Start()
     {
@@ -24,9 +25,13 @@ public class Base : MonoBehaviour
 
     private void Update()
     {
-        foreach(InBaseObject obj in objects)
+        if (isEnabled)
         {
-            obj.Work(Time.deltaTime);
+            foreach (InBaseObject obj in objects)
+            {
+                obj.Work(Time.deltaTime);
+            }
         }
+        
     }
 }
