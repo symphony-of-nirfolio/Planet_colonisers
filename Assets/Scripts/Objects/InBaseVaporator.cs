@@ -10,7 +10,7 @@ public class InBaseVaporator : InBaseObject
     public InBaseVaporator(Base parent, float waterPerSecond = 1) : base(parent) 
     {
         this.resourcePerSecond = waterPerSecond;
-        resourceType = GameResourceType.water;
+        resourceType = GameResourceType.Water;
     }
     public override String Name()
     {

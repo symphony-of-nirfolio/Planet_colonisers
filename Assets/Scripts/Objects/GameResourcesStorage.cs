@@ -5,11 +5,6 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 
-public enum ResourcePack
-{
-    noResources,
-    firstBaseResources
-}
 
 public class GameResourcesStorage
 {
@@ -36,7 +31,7 @@ public class GameResourcesStorage
     {
         Debug.Assert(count >= 0);
         Debug.Assert(storage[(int)resource].amount - count >= 0);
-        Debug.Assert((int)resource < 12);
+        Debug.Assert((int)resource < resourceCount);
         storage[(int)resource].amount -= count;
     }
 }

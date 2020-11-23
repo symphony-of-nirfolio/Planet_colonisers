@@ -9,8 +9,7 @@ public class ResourceDeposit : MonoBehaviour
 {
     private GameResource resource;
     private bool isResourseSet = false;
-    public int max_amount;
-
+    public int maxAmount;
 
     public void SetResourceType(GameResourceType resourceType)
     {

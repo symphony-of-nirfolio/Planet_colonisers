@@ -6,20 +6,20 @@ using System.Threading.Tasks;
 
 public enum GameResourceType
 {
-    food,
-    oxygen,
-    water,
-    elecricity,
+    Food,
+    Oxygen,
+    Water,
+    Elecricity,
 
-    metals,
-    rareMetals,
-    dust,
-    radioactive,
+    Metals,
+    RareMetals,
+    Dust,
+    Radioactive,
 
-    concrete,
-    electronics,
-    machineParts,
-    steel,
+    Concrete,
+    Electronics,
+    MachineParts,
+    Steel,
 }
 
 public class GameResource
