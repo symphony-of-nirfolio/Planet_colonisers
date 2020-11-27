@@ -23,13 +23,12 @@ public class WorldGenerator : MonoBehaviour
         public HexCell[,] area;
     }
 
+    public GameParameters gameParameters;
+    public Camera mainCamera;
     public Camera resourceCamera;
     public Renderer resourceRenderer;
     public Transform resourcesTransform;
     public GameObject resourceDepositPrefab;
-
-    public int mapWidth = 160;
-    public int mapHeight = 90;
 
     public int seed = 1;
 
@@ -158,6 +157,8 @@ public class WorldGenerator : MonoBehaviour
         for (int chankX = 0; chankX < width / chankSize; ++chankX)
             for (int chankY = 0; chankY < height / chankSize; ++chankY)
                 InitResourceChank(hexType, chankX, chankY);
+
+        resourceMaterial.SetVector("Vector2_Offset", Vector4.zero);
     }
 
     private void SetResourcePrefabs()
@@ -174,6 +175,7 @@ public class WorldGenerator : MonoBehaviour
                         resourcesTransform);
                     ResourceName resourceName = resourceDeposit.GetComponent<ResourceName>();
                     resourceName.resourceNameText.text = "Water";
+                    resourceDeposit.GetComponentInChildren<Canvas>().worldCamera = mainCamera;
 
                     hexCell.indexInResourceArray = resourceDepositArray.Count;
                     resourceDepositArray.Add(resourceDeposit);
@@ -198,6 +200,8 @@ public class WorldGenerator : MonoBehaviour
 
     private void Start()
     {
+        Debug.Assert(gameParameters, "Game Parameters doesn't set");
+        Debug.Assert(mainCamera, "Main Camera doesn't set");
         Debug.Assert(resourceCamera, "Resource Camera doesn't set");
         Debug.Assert(resourceRenderer, "Resource Renderer doesn't set");
         Debug.Assert(resourcesTransform, "Resources Transform doesn't set");
@@ -211,8 +215,8 @@ public class WorldGenerator : MonoBehaviour
         int mapSizeToWorldAreaSize(int size) =>
             chankSize * 2 * (1 + (int) (size / 2f / chankSize + 1f));
 
-        width = mapSizeToWorldAreaSize(mapWidth);
-        height = mapSizeToWorldAreaSize(mapHeight);
+        width = mapSizeToWorldAreaSize(Mathf.RoundToInt(gameParameters.mapSize.width));
+        height = mapSizeToWorldAreaSize(Mathf.RoundToInt(gameParameters.mapSize.height));
 
         hexSideSize = hexMinRadius * 2f / sqrtOfThee;
 

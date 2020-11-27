@@ -4719,12 +4719,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1ba78ddf929228745ba948446e7f6c15, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  gameParameters: {fileID: 1828656292}
+  mainCamera: {fileID: 523178580}
   resourceCamera: {fileID: 41540850}
   resourceRenderer: {fileID: 1298340121}
   resourcesTransform: {fileID: 979551468}
   resourceDepositPrefab: {fileID: 5802457723012504393, guid: e2ec0dc17032c8c4f9c66e7bc2917599, type: 3}
-  mapWidth: 160
-  mapHeight: 90
   seed: 1
   hexMinRadius: 2
 --- !u!4 &1824973828
