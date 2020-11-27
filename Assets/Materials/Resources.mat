@@ -51,8 +51,8 @@ Material:
     - Vector1_1F247A11: 2
     - Vector1_912958E8: 0.03
     - Vector1_CBD9D46E: 0.22
-    - Vector1_Riddling: 0.5
-    - Vector1_Scale: 0.07
+    - Vector1_Riddling: 0.001
+    - Vector1_Scale: 0.16
     - Vector1_Seed: 2
     - _AlphaClip: 0
     - _Blend: 0
@@ -77,7 +77,7 @@ Material:
     - _ZWrite: 1
     m_Colors:
     - Vector2_7FA21ABA: {r: 7, g: 5, b: 0, a: 0}
-    - Vector2_Offset: {r: 3, g: 3, b: 0, a: 0}
+    - Vector2_Offset: {r: 13, g: 7, b: 0, a: 0}
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
