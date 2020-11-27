@@ -5,6 +5,8 @@ public class CameraMovement : MonoBehaviour
 {
     public Freezer freezer;
 
+    public GameParameters gameParameters;
+
     public Camera mainCamera = null;
 
     public int countOfZoomSteps = 20;
@@ -32,6 +34,9 @@ public class CameraMovement : MonoBehaviour
 
     private float clickedAngleOfScreenCenterToMouse = 0f;
 
+    private float halfWidth;
+    private float halfHeight;
+
     private bool isAltKeyPressed = false;
     private bool isLeftMouseButtonPressed = false;
 
@@ -56,7 +61,11 @@ public class CameraMovement : MonoBehaviour
 
         Vector3 offset = new Vector3(delta.x, 0f, delta.z);
 
-        transform.position = clickedCameraPosition - offset;
+        Vector3 position = clickedCameraPosition - offset;
+        position.x = Mathf.Clamp(position.x, -halfWidth, halfWidth);
+        position.z = Mathf.Clamp(position.z, -halfHeight, halfHeight);
+
+        transform.position = position;
     }
 
     private void SetRotationAround(Vector3 point, float angle)
@@ -194,6 +203,7 @@ public class CameraMovement : MonoBehaviour
     private void Awake()
     {
         Debug.Assert(freezer, "Freezer doesn't set");
+        Debug.Assert(gameParameters, "Game Parameters doesn't set");
 
         if (!mainCamera)
         {
@@ -201,6 +211,12 @@ public class CameraMovement : MonoBehaviour
         }
 
         InitZoom();
+    }
+
+    private void Start()
+    {
+        halfWidth = gameParameters.mapSize.width / 2f;
+        halfHeight = gameParameters.mapSize.height / 2f;
     }
 
     private void Update()
