@@ -52,6 +52,14 @@ public class WorldGenerator : MonoBehaviour
 
     public Vector2Int GetHexIndices(Vector3 position)
     {
+        if (Input.GetKeyDown(KeyCode.G))
+        {
+            float preY = 2f / 3f * position.z / hexSideSize;
+            float preX = (1f / sqrtOfThee * position.x - 1f / 3f * position.z) / hexSideSize;
+
+            Debug.Log(preX.ToString() + " " + preY.ToString() + " " + position.ToString());
+        }
+
         int y = Mathf.RoundToInt(2f / 3f * position.z / hexSideSize);
         int x = Mathf.RoundToInt((1f / sqrtOfThee * position.x - 1f / 3f * position.z) / hexSideSize) + y / 2;
 
