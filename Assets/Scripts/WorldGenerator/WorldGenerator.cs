@@ -328,7 +328,6 @@ public class WorldGenerator : MonoBehaviour
         height = mapSizeToWorldAreaSize(Mathf.RoundToInt(gameParameters.mapSize.height));
 
         offsetToCenter = new Vector3(width / 2f, 0f, height / 2f);
-        ;
 
         hexSideSize = hexMinRadius * 2f / sqrtOfThee;
 
