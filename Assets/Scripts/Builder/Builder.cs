@@ -83,9 +83,21 @@ public class Builder : MonoBehaviour
 
     private void Start()
     {
-        Debug.Assert(freezer, "Freezer doesn't set");
-        Debug.Assert(mainCamera, "Main Camera doesn't set");
-        Debug.Assert(worldGenerator, "World Generator doesn't set");
+        if (!freezer)
+        {
+            Debug.LogError("Freezer doesn't set");
+            freezer = FindObjectOfType<Freezer>();
+        }
+        if (!mainCamera)
+        {
+            Debug.LogError("Main Camera doesn't set");
+            mainCamera = Camera.main;
+        }
+        if (!worldGenerator)
+        {
+            Debug.LogError("World Generator doesn't set");
+            worldGenerator = FindObjectOfType<WorldGenerator>();
+        }
     }
 
     private void Update()
