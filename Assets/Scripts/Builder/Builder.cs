@@ -75,15 +75,29 @@ public class Builder : MonoBehaviour
                 ResourceExtractor resourceExtractor = building.GetComponent<ResourceExtractor>();
                 resourceExtractor.SetDeposit(resourceDeposit);
             }
+
+            worldGenerator.AddBuildingToHexCell(position, building);
         }
     }
 
 
     private void Start()
     {
-        Debug.Assert(freezer, "Freezer doesn't set");
-        Debug.Assert(mainCamera, "Main Camera doesn't set");
-        Debug.Assert(worldGenerator, "World Generator doesn't set");
+        if (!freezer)
+        {
+            Debug.LogError("Freezer doesn't set");
+            freezer = FindObjectOfType<Freezer>();
+        }
+        if (!mainCamera)
+        {
+            Debug.LogError("Main Camera doesn't set");
+            mainCamera = Camera.main;
+        }
+        if (!worldGenerator)
+        {
+            Debug.LogError("World Generator doesn't set");
+            worldGenerator = FindObjectOfType<WorldGenerator>();
+        }
     }
 
     private void Update()
@@ -104,28 +118,26 @@ public class Builder : MonoBehaviour
         {
             bool isValidPlace = true;
 
+            if (!currentBuilding)
+            {
+                UpdateCurrentBuilding();
+            }
+
             if (currentBuilding)
             {
                 Vector3 hexCenter = worldGenerator.GetHexCenterPosition(enter);
                 bool isHexContainsResource = worldGenerator.IsHexContainsResource(enter);
 
-                isValidPlace = isCurrentBuildResourceExtractor == isHexContainsResource;
+                isValidPlace = worldGenerator.IsHexAvailableForBuilding(enter);
+                isValidPlace &= isCurrentBuildResourceExtractor == isHexContainsResource;
 
                 currentBuilding.transform.position = hexCenter + Vector3.up * preViewOffset;
-            }
-            else
-            {
-                UpdateCurrentBuilding();
-            }
+                currentBuildHelper.SetMaterialColor(isValidPlace ? validPositionColor : invalidPositionColor);
 
-            // TODO: replace with world generator function
-            isValidPlace &= !currentBuildHelper.IsCollideWithOtherBuildings;
-
-            currentBuildHelper.SetMaterialColor(isValidPlace ? validPositionColor : invalidPositionColor);
-
-            if (isValidPlace && Input.GetMouseButtonDown((int) MouseButton.LeftMouse))
-            {
-                AddCurrentBuildingToMap();
+                if (isValidPlace && Input.GetMouseButtonDown((int) MouseButton.LeftMouse))
+                {
+                    AddCurrentBuildingToMap();
+                }
             }
         }
         else
