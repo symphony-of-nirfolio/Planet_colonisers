@@ -41,21 +41,6 @@ public class Builder : MonoBehaviour
     }
 
 
-    private bool IntersectionRayFromMouseWithXOZPlane(out Vector3 intersectPoint)
-    {
-        Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
-        Plane plane = new Plane(Vector3.up, Vector3.zero);
-
-        if (plane.Raycast(ray, out float enter))
-        {
-            intersectPoint = ray.GetPoint(enter);
-            return true;
-        }
-
-        intersectPoint = Vector3.zero;
-        return false;
-    }
-
     private void UpdateCurrentBuilding()
     {
         if (currentBuilding)
@@ -63,7 +48,7 @@ public class Builder : MonoBehaviour
             Destroy(currentBuilding);
         }
 
-        if (IntersectionRayFromMouseWithXOZPlane(out Vector3 intersectPoint))
+        if (Utils.IntersectionMouseRayWithXOZPlane(mainCamera, out Vector3 intersectPoint))
         {
             currentBuilding = Instantiate(
                 currentBuildingPrefab,
@@ -115,7 +100,7 @@ public class Builder : MonoBehaviour
         }
 
         if (!freezer.IsInteractionFreeze &&
-            IntersectionRayFromMouseWithXOZPlane(out Vector3 enter))
+            Utils.IntersectionMouseRayWithXOZPlane(mainCamera, out Vector3 enter))
         {
             bool isValidPlace = true;
 
