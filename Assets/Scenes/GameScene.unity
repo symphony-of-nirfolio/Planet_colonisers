@@ -4461,6 +4461,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   freezer: {fileID: 290590043}
   mainCamera: {fileID: 876141446}
+  worldGenerator: {fileID: 1748779820}
   validPositionColor: {r: 0.019017458, g: 1, b: 0, a: 1}
   invalidPositionColor: {r: 1, g: 0, b: 0, a: 1}
   preViewOffset: 0.01
