@@ -4,8 +4,8 @@ using UnityEngine.UIElements;
 public class Builder : MonoBehaviour
 {
     public Freezer freezer;
-
     public Camera mainCamera;
+    public WorldGenerator worldGenerator;
 
     public Color validPositionColor;
     public Color invalidPositionColor;
@@ -15,6 +15,8 @@ public class Builder : MonoBehaviour
     private GameObject currentBuildingPrefab = null;
     private GameObject currentBuilding = null;
     private BuildHelper currentBuildHelper = null;
+
+    private bool isCurrentBuildResourceExtractor = false;
 
     private bool isActive = false;
 
@@ -53,6 +55,8 @@ public class Builder : MonoBehaviour
                 intersectPoint + Vector3.up * preViewOffset,
                 Quaternion.identity);
             currentBuildHelper = currentBuilding.GetComponent<BuildHelper>();
+
+            isCurrentBuildResourceExtractor = currentBuilding.TryGetComponent(out ResourceExtractor _);
         }
     }
 
@@ -60,10 +64,17 @@ public class Builder : MonoBehaviour
     {
         if (currentBuilding)
         {
-            Instantiate(
-                currentBuildingPrefab,
-                currentBuilding.transform.position - Vector3.up * preViewOffset,
-                Quaternion.identity);
+            Vector3 position = currentBuilding.transform.position - Vector3.up * preViewOffset;
+            GameObject building = Instantiate(currentBuildingPrefab, position, Quaternion.identity);
+
+            if (isCurrentBuildResourceExtractor)
+            {
+                ResourceDeposit resourceDeposit = worldGenerator.GetResourceDeposit(position);
+                Debug.Assert(resourceDeposit, "Resource Deposit is null");
+
+                ResourceExtractor resourceExtractor = building.GetComponent<ResourceExtractor>();
+                resourceExtractor.SetDeposit(resourceDeposit);
+            }
         }
     }
 
@@ -72,6 +83,7 @@ public class Builder : MonoBehaviour
     {
         Debug.Assert(freezer, "Freezer doesn't set");
         Debug.Assert(mainCamera, "Main Camera doesn't set");
+        Debug.Assert(worldGenerator, "World Generator doesn't set");
     }
 
     private void Update()
@@ -88,42 +100,37 @@ public class Builder : MonoBehaviour
         }
 
         if (!freezer.IsInteractionFreeze &&
-            Utils.IntersectionMouseRayWithXOZPlane(mainCamera, out Vector3 intersectPoint))
+            Utils.IntersectionMouseRayWithXOZPlane(mainCamera, out Vector3 enter))
         {
+            bool isValidPlace = true;
+
             if (currentBuilding)
             {
-                currentBuilding.transform.position = intersectPoint + Vector3.up * preViewOffset;
+                Vector3 hexCenter = worldGenerator.GetHexCenterPosition(enter);
+                bool isHexContainsResource = worldGenerator.IsHexContainsResource(enter);
+
+                isValidPlace = isCurrentBuildResourceExtractor == isHexContainsResource;
+
+                currentBuilding.transform.position = hexCenter + Vector3.up * preViewOffset;
             }
             else
             {
                 UpdateCurrentBuilding();
             }
 
-            if (currentBuildHelper.IsCollideWithOtherBuildings)
+            // TODO: replace with world generator function
+            isValidPlace &= !currentBuildHelper.IsCollideWithOtherBuildings;
+
+            currentBuildHelper.SetMaterialColor(isValidPlace ? validPositionColor : invalidPositionColor);
+
+            if (isValidPlace && Input.GetMouseButtonDown((int) MouseButton.LeftMouse))
             {
-                currentBuildHelper.SetMaterialColor(invalidPositionColor);
-            }
-            else
-            {
-                currentBuildHelper.SetMaterialColor(validPositionColor);
+                AddCurrentBuildingToMap();
             }
         }
         else
         {
             Destroy(currentBuilding);
-        }
-    }
-
-    private void LateUpdate()
-    {
-        if (!freezer.IsInteractionFreeze &&
-            currentBuilding)
-        {
-            if (!currentBuildHelper.IsCollideWithOtherBuildings &&
-                Input.GetMouseButtonDown((int) MouseButton.LeftMouse))
-            {
-                AddCurrentBuildingToMap();
-            }
         }
     }
 }
