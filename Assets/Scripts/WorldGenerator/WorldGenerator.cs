@@ -1,20 +1,23 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class WorldGenerator : MonoBehaviour
 {
-    public enum HexType : byte
+    [Flags]
+    public enum HexType : ushort
     {
-        Land,
-        Water,
-        None,
-        CountOf,
+        None        = 0b_0000_0000_0000_0000,
+        Land        = 0b_0000_0000_0000_0001,
+        Building    = 0b_0000_0000_0000_0010,
+        Water       = 0b_0000_0000_0000_0100,
     }
 
     public class HexCell
     {
         public float resourceAmount = 0f;
         public int indexInResourceArray = -1;
+        public int indexInBuildingArray = -1;
         public HexType hexType = HexType.None;
     }
 
@@ -42,6 +45,7 @@ public class WorldGenerator : MonoBehaviour
 
     private WorldAreaInfo worldAreaInfo;
     private readonly List<ResourceDeposit> resourceDepositArray = new List<ResourceDeposit>();
+    private readonly List<GameObject> buildingArray = new List<GameObject>();
 
     private Vector3 offsetToCenter;
 
@@ -85,6 +89,57 @@ public class WorldGenerator : MonoBehaviour
             return IsResourceType(worldAreaInfo.area[indices.x, indices.y].hexType);
         else
             return false;
+    }
+
+    public bool IsHexAvailableForBuilding(Vector3 position)
+    {
+        Vector2Int indices = GetHexIndices(position + offsetToCenter);
+
+        if (IsValidHexIndices(indices))
+        {
+            HexType hexType = worldAreaInfo.area[indices.x, indices.y].hexType;
+
+            return hexType == HexType.Land || IsResourceOnlyType(hexType);
+        }
+        else
+            return false;
+    }
+
+    public void AddBuildingToHexCell(Vector3 position, GameObject building)
+    {
+        Vector2Int indices = GetHexIndices(position + offsetToCenter);
+
+        if (IsHexAvailableForBuilding(position))
+        {
+            HexCell hexCell = worldAreaInfo.area[indices.x, indices.y];
+            hexCell.hexType |= HexType.Building;
+            hexCell.indexInBuildingArray = buildingArray.Count;
+            worldAreaInfo.area[indices.x, indices.y] = hexCell;
+
+            buildingArray.Add(building);
+        }
+        else
+            Debug.LogError("Hex cell unavalible for building");
+    }
+
+    public GameObject GetBuilding(Vector3 position)
+    {
+        Vector2Int indices = GetHexIndices(position + offsetToCenter);
+
+        if (IsValidHexIndices(indices))
+        {
+            int buildingIndex = worldAreaInfo.area[indices.x, indices.y].indexInBuildingArray;
+
+            if (buildingIndex == -1)
+            {
+                Debug.LogError("Current hex cell doesn\'t contain building");
+                return null;
+            }
+            else
+                return buildingArray[buildingIndex];
+        }
+        else
+            return null;
     }
 
     public GameResourceType GetGameResourceType(Vector3 position)
@@ -164,7 +219,14 @@ public class WorldGenerator : MonoBehaviour
             indices.y < worldAreaInfo.area.GetLength(1);
     }
 
-    private bool IsResourceType(HexType hexType)
+    private HexType GetResourceOnly(HexType hexType)
+    {
+        HexType noResourceTypes = HexType.Land | HexType.Building;
+
+        return hexType & ~noResourceTypes;
+    }
+
+    private bool IsResourceOnlyType(HexType hexType)
     {
         switch (hexType)
         {
@@ -173,6 +235,13 @@ public class WorldGenerator : MonoBehaviour
             default:
                 return false;
         }
+    }
+
+    private bool IsResourceType(HexType hexType)
+    {
+        HexType resourceOnly = GetResourceOnly(hexType);
+
+        return IsResourceOnlyType(resourceOnly);
     }
 
     private GameResourceType HexTypeToGameResourceType(HexType hexType)
