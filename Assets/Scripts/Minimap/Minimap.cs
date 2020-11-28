@@ -12,27 +12,6 @@ public class Minimap : MonoBehaviour
     private Vector3[] lineRendererPositions;
 
 
-    private bool IntersectionRayWithXOZPlane(Ray ray, out Vector3 intersectPoint)
-    {
-        Plane plane = new Plane(Vector3.up, Vector3.zero);
-
-        if (plane.Raycast(ray, out float enter))
-        {
-            intersectPoint = ray.GetPoint(enter);
-            return true;
-        }
-
-        intersectPoint = Vector3.zero;
-        return false;
-    }
-
-    private bool IntersectionRayFromMouseWithXOZPlane(Vector3 mousePosition, out Vector3 intersectPoint)
-    {
-        Ray ray = mainCamera.ScreenPointToRay(mousePosition);
-        return IntersectionRayWithXOZPlane(ray, out intersectPoint);
-    }
-
-
     private void UpdateMainCameraViewLine()
     {
         int cornerCount = 4;
@@ -44,7 +23,7 @@ public class Minimap : MonoBehaviour
 
         for (int i = 0; i < cornerCount; ++i)
         {
-            if (IntersectionRayFromMouseWithXOZPlane(screenPositions[i], out Vector3 intersectPoint))
+            if (Utils.IntersectionScreenPointRayWithXOZPlane(screenPositions[i], mainCamera, out Vector3 intersectPoint))
             {
                 lineRendererPositions[i] = intersectPoint;
             }

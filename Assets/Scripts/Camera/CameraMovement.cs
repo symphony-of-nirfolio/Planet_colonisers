@@ -167,36 +167,11 @@ public class CameraMovement : MonoBehaviour
         return AngleOfScreenCenterToPointVector(ScreenCenterToPointVector(Input.mousePosition));
     }
 
-    private bool IntersectionRayWithXOZPlane(Ray ray, out Vector3 intersectPoint)
-    {
-        Plane plane = new Plane(Vector3.up, Vector3.zero);
 
-        if (plane.Raycast(ray, out float enter))
-        {
-            intersectPoint = ray.GetPoint(enter);
-            return true;
-        }
-
-        intersectPoint = Vector3.zero;
-        return false;
-    }
-
-    private bool IntersectionRayFromMouseWithXOZPlane(Vector3 mousePosition, out Vector3 intersectPoint)
-    {
-        Ray ray = mainCamera.ScreenPointToRay(mousePosition);
-        return IntersectionRayWithXOZPlane(ray, out intersectPoint);
-    }
-
-    private bool IntersectionRayFromMouseWithXOZPlane(out Vector3 intersectPoint)
-    {
-        Vector3 mousePosition = Input.mousePosition;
-        return IntersectionRayFromMouseWithXOZPlane(mousePosition, out intersectPoint);
-    }
-
-    private bool IntersectionRayFromCenterPointWithXOZPlane(out Vector3 intersectPoint)
+    private bool IntersectionCenterPointRayWithXOZPlane(out Vector3 intersectPoint)
     {
         Ray ray = new Ray(transform.position, transform.forward);
-        return IntersectionRayWithXOZPlane(ray, out intersectPoint);
+        return Utils.IntersectionRayWithXOZPlane(ray, out intersectPoint);
     }
 
 
@@ -230,12 +205,12 @@ public class CameraMovement : MonoBehaviour
             (Input.GetMouseButton((int) MouseButton.MiddleMouse) &&
                 (Input.GetKeyDown(KeyCode.LeftAlt) || Input.GetKeyUp(KeyCode.LeftAlt))))
         {
-            if (IntersectionRayFromMouseWithXOZPlane(out Vector3 intersectPointFromMouse))
+            if (Utils.IntersectionMouseRayWithXOZPlane(mainCamera, out Vector3 intersectPointFromMouse))
             {
                 clickedPointOnPlaneFromMouse = intersectPointFromMouse;
             }
 
-            if (IntersectionRayFromCenterPointWithXOZPlane(out Vector3 intersectPointFromCenterPoint))
+            if (IntersectionCenterPointRayWithXOZPlane(out Vector3 intersectPointFromCenterPoint))
             {
                 clickedPointOnPlaneFromCenterPoint = intersectPointFromCenterPoint;
             }
@@ -270,7 +245,7 @@ public class CameraMovement : MonoBehaviour
             return;
         }
 
-        if (IntersectionRayFromMouseWithXOZPlane(out Vector3 intersectPointFromMouse))
+        if (Utils.IntersectionMouseRayWithXOZPlane(mainCamera, out Vector3 intersectPointFromMouse))
         {
             Gizmos.color = Color.red;
             Gizmos.DrawSphere(intersectPointFromMouse, gizmosSphereSize);
@@ -279,7 +254,7 @@ public class CameraMovement : MonoBehaviour
         Gizmos.color = Color.blue;
         Gizmos.DrawSphere(clickedPointOnPlaneFromMouse, gizmosSphereSize);
 
-        if (IntersectionRayFromCenterPointWithXOZPlane(out Vector3 intersectPointFromCenterPoint))
+        if (IntersectionCenterPointRayWithXOZPlane(out Vector3 intersectPointFromCenterPoint))
         {
             Gizmos.color = Color.cyan;
             Gizmos.DrawSphere(intersectPointFromCenterPoint, gizmosSphereSize);
