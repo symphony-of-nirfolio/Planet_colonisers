@@ -319,6 +319,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5802457723012504394}
   - component: {fileID: 5802457723012504395}
+  - component: {fileID: 9198925595215009466}
   m_Layer: 0
   m_Name: ResourceDeposit
   m_TagString: Untagged
@@ -354,3 +355,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   resourceNameText: {fileID: 5802457722085088203}
+--- !u!114 &9198925595215009466
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5802457723012504393}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: af44d30d01c141d40b3384c3e723a5e7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxAmount: 0

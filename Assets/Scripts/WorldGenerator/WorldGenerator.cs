@@ -41,7 +41,9 @@ public class WorldGenerator : MonoBehaviour
     private Material resourceMaterial;
 
     private WorldAreaInfo worldAreaInfo;
-    private readonly List<GameObject> resourceDepositArray = new List<GameObject>();
+    private readonly List<ResourceDeposit> resourceDepositArray = new List<ResourceDeposit>();
+
+    private Vector3 offsetToCenter;
 
     private float hexSideSize;
 
@@ -52,18 +54,14 @@ public class WorldGenerator : MonoBehaviour
 
     public Vector2Int GetHexIndices(Vector3 position)
     {
-        if (Input.GetKeyDown(KeyCode.G))
-        {
-            float preY = 2f / 3f * position.z / hexSideSize;
-            float preX = (1f / sqrtOfThee * position.x - 1f / 3f * position.z) / hexSideSize;
+        float y = 2f / 3f * position.z / hexSideSize;
+        float x = (1f / sqrtOfThee * position.x - 1f / 3f * position.z) / hexSideSize;
+        Vector2 hex = HexRound(new Vector2(x, y));
 
-            Debug.Log(preX.ToString() + " " + preY.ToString() + " " + position.ToString());
-        }
+        int yHex = Mathf.RoundToInt(hex.y);
+        int xHex = Mathf.RoundToInt(hex.x) + yHex / 2;
 
-        int y = Mathf.RoundToInt(2f / 3f * position.z / hexSideSize);
-        int x = Mathf.RoundToInt((1f / sqrtOfThee * position.x - 1f / 3f * position.z) / hexSideSize) + y / 2;
-
-        return new Vector2Int(x, y);
+        return new Vector2Int(xHex, yHex);
     }
 
     public Vector3 GetHexPosition(Vector2Int indices)
@@ -71,16 +69,92 @@ public class WorldGenerator : MonoBehaviour
         float x = hexSideSize * (sqrtOfThee * (indices.x - indices.y / 2) + sqrtOfThee * 0.5f * indices.y);
         float z = hexSideSize * (1.5f * indices.y);
 
-        Vector3 offset = new Vector3(width / 2f, 0f, height / 2f);
-        return new Vector3(x, 0f, z) - offset;
+        return new Vector3(x, 0f, z) - offsetToCenter;
     }
 
     public Vector3 GetHexCenterPosition(Vector3 position)
     {
-        Vector3 offset = new Vector3(width / 2f, 0f, height / 2f);
-        return GetHexPosition(GetHexIndices(position + offset));
+        return GetHexPosition(GetHexIndices(position + offsetToCenter));
     }
 
+    public bool IsHexContainsResource(Vector3 position)
+    {
+        Vector2Int indices = GetHexIndices(position + offsetToCenter);
+
+        if (IsValidHexIndices(indices))
+            return IsResourceType(worldAreaInfo.area[indices.x, indices.y].hexType);
+        else
+            return false;
+    }
+
+    public GameResourceType GetGameResourceType(Vector3 position)
+    {
+        Vector2Int indices = GetHexIndices(position + offsetToCenter);
+
+        if (IsValidHexIndices(indices))
+            return HexTypeToGameResourceType(worldAreaInfo.area[indices.x, indices.y].hexType);
+        else
+            return HexTypeToGameResourceType(HexType.None);
+    }
+
+    public ResourceDeposit GetResourceDeposit(Vector3 position)
+    {
+        Vector2Int indices = GetHexIndices(position + offsetToCenter);
+
+        if (IsValidHexIndices(indices))
+        {
+            int resourceIndex = worldAreaInfo.area[indices.x, indices.y].indexInResourceArray;
+
+            if (resourceIndex == -1)
+            {
+                Debug.LogError("Current hex cell doesn\'t contain resource");
+                return null;
+            }
+            else
+                return resourceDepositArray[resourceIndex];
+        }
+        else
+            return null;
+    }
+
+
+    private Vector2 CubeToAxial(Vector3 cube)
+    {
+        return new Vector2(cube.x, cube.z);
+    }
+
+    private Vector3 AxialToCube(Vector2 axial)
+    {
+        float x = axial.x;
+        float z = axial.y;
+        float y = -x - z;
+        return new Vector3(x, y, z);
+    }
+
+    private Vector3 CubeRound(Vector3 cube)
+    {
+        float roundX = Mathf.Round(cube.x);
+        float roundY = Mathf.Round(cube.y);
+        float roundZ = Mathf.Round(cube.z);
+
+        float xDifference = Mathf.Abs(roundX - cube.x);
+        float yDifference = Mathf.Abs(roundY - cube.y);
+        float zDifference = Mathf.Abs(roundZ - cube.z);
+
+        if (xDifference > yDifference && xDifference > zDifference)
+            roundX = -roundY - roundZ;
+        else if (yDifference > zDifference)
+            roundY = -roundX - roundZ;
+        else
+            roundZ = -roundX - roundY;
+
+        return new Vector3(roundX, roundY, roundZ);
+    }
+
+    private Vector2 HexRound(Vector2 hex)
+    {
+        return CubeToAxial(CubeRound(AxialToCube(hex)));
+    }
 
     private bool IsValidHexIndices(Vector2Int indices)
     {
@@ -88,6 +162,29 @@ public class WorldGenerator : MonoBehaviour
             indices.y >= 0 &&
             indices.x < worldAreaInfo.area.GetLength(0) &&
             indices.y < worldAreaInfo.area.GetLength(1);
+    }
+
+    private bool IsResourceType(HexType hexType)
+    {
+        switch (hexType)
+        {
+            case HexType.Water:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    private GameResourceType HexTypeToGameResourceType(HexType hexType)
+    {
+        switch (hexType)
+        {
+            case HexType.Water:
+                return GameResourceType.Water;
+            default:
+                Debug.LogWarning("Unresolved hex type");
+                return GameResourceType.Dust;
+        }
     }
 
     private Color32[] TakeResourceSnapshot(int xOffset, int yOffset)
@@ -184,9 +281,13 @@ public class WorldGenerator : MonoBehaviour
                     ResourceName resourceName = resourceDeposit.GetComponent<ResourceName>();
                     resourceName.resourceNameText.text = "Water";
                     resourceDeposit.GetComponentInChildren<Canvas>().worldCamera = mainCamera;
+                    ResourceDeposit resourceDepositScript = resourceDeposit.GetComponent<ResourceDeposit>();
+
+                    // TODO: add resource amount
+                    resourceDepositScript.SetResourceType(HexTypeToGameResourceType(hexCell.hexType));
 
                     hexCell.indexInResourceArray = resourceDepositArray.Count;
-                    resourceDepositArray.Add(resourceDeposit);
+                    resourceDepositArray.Add(resourceDepositScript);
                 }
             }
     }
@@ -225,6 +326,9 @@ public class WorldGenerator : MonoBehaviour
 
         width = mapSizeToWorldAreaSize(Mathf.RoundToInt(gameParameters.mapSize.width));
         height = mapSizeToWorldAreaSize(Mathf.RoundToInt(gameParameters.mapSize.height));
+
+        offsetToCenter = new Vector3(width / 2f, 0f, height / 2f);
+        ;
 
         hexSideSize = hexMinRadius * 2f / sqrtOfThee;
 
