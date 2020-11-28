@@ -4,8 +4,8 @@ using UnityEngine.UIElements;
 public class Builder : MonoBehaviour
 {
     public Freezer freezer;
-
     public Camera mainCamera;
+    public WorldGenerator worldGenerator;
 
     public Color validPositionColor;
     public Color invalidPositionColor;
@@ -87,6 +87,7 @@ public class Builder : MonoBehaviour
     {
         Debug.Assert(freezer, "Freezer doesn't set");
         Debug.Assert(mainCamera, "Main Camera doesn't set");
+        Debug.Assert(worldGenerator, "World Generator doesn't set");
     }
 
     private void Update()
@@ -103,11 +104,13 @@ public class Builder : MonoBehaviour
         }
 
         if (!freezer.IsInteractionFreeze &&
-            IntersectionRayFromMouseWithXOZPlane(out Vector3 intersectPoint))
+            IntersectionRayFromMouseWithXOZPlane(out Vector3 enter))
         {
             if (currentBuilding)
             {
-                currentBuilding.transform.position = intersectPoint + Vector3.up * preViewOffset;
+                Vector3 hexCenter = worldGenerator.GetHexCenterPosition(enter);
+
+                currentBuilding.transform.position = hexCenter + Vector3.up * preViewOffset;
             }
             else
             {
