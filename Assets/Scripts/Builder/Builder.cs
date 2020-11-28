@@ -75,6 +75,8 @@ public class Builder : MonoBehaviour
                 ResourceExtractor resourceExtractor = building.GetComponent<ResourceExtractor>();
                 resourceExtractor.SetDeposit(resourceDeposit);
             }
+
+            worldGenerator.AddBuildingToHexCell(position, building);
         }
     }
 
@@ -104,28 +106,26 @@ public class Builder : MonoBehaviour
         {
             bool isValidPlace = true;
 
+            if (!currentBuilding)
+            {
+                UpdateCurrentBuilding();
+            }
+
             if (currentBuilding)
             {
                 Vector3 hexCenter = worldGenerator.GetHexCenterPosition(enter);
                 bool isHexContainsResource = worldGenerator.IsHexContainsResource(enter);
 
-                isValidPlace = isCurrentBuildResourceExtractor == isHexContainsResource;
+                isValidPlace = worldGenerator.IsHexAvailableForBuilding(enter);
+                isValidPlace &= isCurrentBuildResourceExtractor == isHexContainsResource;
 
                 currentBuilding.transform.position = hexCenter + Vector3.up * preViewOffset;
-            }
-            else
-            {
-                UpdateCurrentBuilding();
-            }
+                currentBuildHelper.SetMaterialColor(isValidPlace ? validPositionColor : invalidPositionColor);
 
-            // TODO: replace with world generator function
-            isValidPlace &= !currentBuildHelper.IsCollideWithOtherBuildings;
-
-            currentBuildHelper.SetMaterialColor(isValidPlace ? validPositionColor : invalidPositionColor);
-
-            if (isValidPlace && Input.GetMouseButtonDown((int) MouseButton.LeftMouse))
-            {
-                AddCurrentBuildingToMap();
+                if (isValidPlace && Input.GetMouseButtonDown((int) MouseButton.LeftMouse))
+                {
+                    AddCurrentBuildingToMap();
+                }
             }
         }
         else
