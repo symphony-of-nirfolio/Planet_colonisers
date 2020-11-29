@@ -72,7 +72,7 @@ Material:
     - _WorkflowMode: 1
     - _ZWrite: 1
     m_Colors:
-    - Color_Highlight: {r: 0.9995808, g: 1, b: 0.9995808, a: 1}
+    - Color_Highlight: {r: 1, g: 1, b: 1, a: 1}
     - Vector2_3754989D: {r: 0.4, g: 0.05, b: 0, a: 0}
     - Vector2_CursorOffset: {r: -2000, g: -2000, b: 0, a: 0}
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}

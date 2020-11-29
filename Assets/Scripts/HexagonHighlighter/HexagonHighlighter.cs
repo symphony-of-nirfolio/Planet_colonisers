@@ -11,6 +11,7 @@ public class HexagonHighlighter : MonoBehaviour
 
     public Color emptyHexColor = Color.white;
     public Color resourceHexColor = Color.green;
+    public Color noneHexColor = Color.red;
 
     public float moveSmoothTime = 0.05f;
     public float colorChangeSpeed = 7f;
@@ -41,9 +42,17 @@ public class HexagonHighlighter : MonoBehaviour
             highlighter.SetActive(true);
 
             Vector3 hexCenter = worldGenerator.GetHexCenterPosition(enter);
+            bool isHexNone = worldGenerator.IsHexNone(enter);
             bool isHexContainsResource = worldGenerator.IsHexContainsResource(enter);
 
-            Color hexColor = isHexContainsResource ? resourceHexColor : emptyHexColor;
+            Color hexColor;
+            if (isHexNone)
+                hexColor = noneHexColor;
+            else if (isHexContainsResource)
+                hexColor = resourceHexColor;
+            else
+                hexColor = emptyHexColor;
+
             previousColor = Color.Lerp(previousColor, hexColor, Time.deltaTime * colorChangeSpeed);
             currentMaterial.SetColor("Color_Highlight", previousColor);
 
@@ -51,5 +60,10 @@ public class HexagonHighlighter : MonoBehaviour
         }
         else
             highlighter.SetActive(false);
+    }
+
+    private void OnDisable()
+    {
+        currentMaterial.SetColor("Color_Highlight", Color.white);
     }
 }
