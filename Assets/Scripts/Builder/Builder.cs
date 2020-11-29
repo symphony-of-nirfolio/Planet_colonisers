@@ -103,7 +103,7 @@ public class Builder : MonoBehaviour
 
         if (!buildingsTransform)
         {
-            Debug.LogWarning("buildings Transform is null, so new buildings will be attached to the root transform");
+            Debug.LogWarning("Buildings transform is null, so new buildings will be attached to the root transform");
         }
     }
 
