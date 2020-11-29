@@ -5,6 +5,7 @@ public class GameParametersLoader : MonoBehaviour
 {
     public ColonyType colonyType;
     public MapSize mapSize;
+    public int colonyAmount;
     public PlanetInfo planetInfo;
 
 
@@ -18,11 +19,13 @@ public class GameParametersLoader : MonoBehaviour
         {
             Debug.Assert(colonyType, "Colony Type doesn't set");
             Debug.Assert(mapSize, "Map Size doesn't set");
+            Debug.Assert(colonyAmount > 0, "Colony Amount have to be more than zero");
             Debug.Assert(planetInfo, "Planet Info doesn't set");
 
             GameParameters gameParameters = FindObjectOfType<GameParameters>();
             gameParameters.colonyType = colonyType;
             gameParameters.mapSize = mapSize;
+            gameParameters.colonyAmount = colonyAmount;
             gameParameters.planetInfo = planetInfo;
         }
 

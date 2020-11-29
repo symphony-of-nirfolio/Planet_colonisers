@@ -20,6 +20,12 @@ public class NewGameMenu : MonoBehaviour
     public TMP_Dropdown colonyTypeDropdown;
     public TMP_Dropdown mapSizeDropdown;
 
+    public Slider colonyAmountSlider;
+    public TMP_Text colonyAmountSliderValueText;
+
+    public int defaultColonyAmount = 4;
+    public int maxColonyAmount = 8;
+
 
     private GameObject[] smallPlanetRectangles;
     private GameObject[] smallPlanets = new GameObject[0];
@@ -27,6 +33,7 @@ public class NewGameMenu : MonoBehaviour
 
     private ColonyType currentColonyType;
     private MapSize currentMapSize;
+    private int currentColonyAmount;
     private PlanetInfo currentPlanetInfo;
 
 
@@ -36,9 +43,18 @@ public class NewGameMenu : MonoBehaviour
         GameParametersLoader gameParametersLoader = gameParametersLoaderGameObject.AddComponent<GameParametersLoader>();
         gameParametersLoader.colonyType = currentColonyType;
         gameParametersLoader.mapSize = currentMapSize;
+        gameParametersLoader.colonyAmount = currentColonyAmount;
         gameParametersLoader.planetInfo = currentPlanetInfo;
 
         SceneManager.LoadScene("GameScene");
+    }
+
+    public void SetColonyType(int index)
+    {
+        Debug.Assert(
+            index >= 0 && index < colonyTypeList.colonyTypes.Length,
+            "Index have to be in range [0, size of colonyTypeList]");
+        currentColonyType = colonyTypeList.colonyTypes[index];
     }
 
     public void SetMapSize(int index)
@@ -47,6 +63,12 @@ public class NewGameMenu : MonoBehaviour
             index >= 0 && index < mapSizeList.mapSizes.Length,
             "Index have to be in range [0, size of mapSizeList]");
         currentMapSize = mapSizeList.mapSizes[index];
+    }
+
+    public void SetColonyAmount(float amount)
+    {
+        currentColonyAmount = Mathf.RoundToInt(amount);
+        colonyAmountSliderValueText.text = currentColonyAmount.ToString();
     }
 
 
@@ -120,6 +142,17 @@ public class NewGameMenu : MonoBehaviour
         currentPlanetInfo = planetInfoList.planetInfos[0];
     }
 
+    private void InitColonyAmountSlider()
+    {
+        colonyAmountSliderValueText.text = defaultColonyAmount.ToString();
+
+        colonyAmountSlider.minValue = 1;
+        colonyAmountSlider.maxValue = maxColonyAmount;
+        colonyAmountSlider.value = defaultColonyAmount;
+
+        currentColonyAmount = defaultColonyAmount;
+    }
+
 
     private void Awake()
     {
@@ -130,6 +163,10 @@ public class NewGameMenu : MonoBehaviour
         Debug.Assert(smallPlanetRectanglePrefab, "Small Planet Rectangle Prefab doesn't set");
         Debug.Assert(smallPlanetPrefab, "Small Planet Prefab doesn't set");
         Debug.Assert(smallPlanetsRectTransform, "Small Planets Rect Transform doesn't set");
+        Debug.Assert(colonyTypeDropdown, "Colony Type Dropdown doesn't set");
+        Debug.Assert(mapSizeDropdown, "Map Size Dropdown doesn't set");
+        Debug.Assert(colonyAmountSlider, "Colony Amount Slider doesn't set");
+        Debug.Assert(colonyAmountSliderValueText, "Colony Amount Slider Value Text doesn't set");
 
         smallPlanetRectangles = new GameObject[planetInfoList.planetInfos.Length];
         
@@ -151,6 +188,7 @@ public class NewGameMenu : MonoBehaviour
     {
         InitColonyTypes();
         InitMapSizes();
+        InitColonyAmountSlider();
         InitPlanetInfos();
     }
 
