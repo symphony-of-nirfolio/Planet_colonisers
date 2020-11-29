@@ -14,3 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gameResourceType: 5
   sprite: {fileID: 21300000, guid: c8304e84dacabad46abdb524dc71425f, type: 3}
+  riddling: 0.001

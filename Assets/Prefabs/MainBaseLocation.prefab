@@ -90,9 +90,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5802457723012504394}
-  - component: {fileID: 5802457723012504395}
-  - component: {fileID: -4886636945604433960}
-  - component: {fileID: 9198925595215009466}
   m_Layer: 0
   m_Name: MainBaseLocation
   m_TagString: Untagged
@@ -115,43 +112,3 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &5802457723012504395
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5802457723012504393}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b276025dbe8c0de40a3309e6e55c1ed3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  resourceNameText: {fileID: 0}
---- !u!114 &-4886636945604433960
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5802457723012504393}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 78e88dd8e281f434aa6648c59b328f4d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  limitedMinedResourceInfoList: {fileID: 11400000, guid: 18b2b2f1926038d41a8ed5d7c2fd7b90, type: 2}
-  spriteRenderer: {fileID: 0}
---- !u!114 &9198925595215009466
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5802457723012504393}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: af44d30d01c141d40b3384c3e723a5e7, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  maxAmount: 0
