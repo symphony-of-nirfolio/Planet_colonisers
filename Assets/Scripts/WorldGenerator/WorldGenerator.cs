@@ -1,16 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class WorldGenerator : MonoBehaviour
 {
     [Flags]
     public enum HexType : ushort
     {
-        None        = 0b_0000_0000_0000_0000,
-        Land        = 0b_0000_0000_0000_0001,
-        Building    = 0b_0000_0000_0000_0010,
-        Water       = 0b_0000_0000_0000_0100,
+        None            = 0b_0000_0000_0000_0000,
+        Land            = 0b_0000_0000_0000_0001,
+        Building        = 0b_0000_0000_0000_0010,
+        ColonyMainBase  = 0b_0000_0000_0000_0100,
+        Water           = 0b_0000_0000_0000_1000,
     }
 
     public class HexCell
@@ -26,6 +28,7 @@ public class WorldGenerator : MonoBehaviour
         public HexCell[,] area;
     }
 
+
     public GameParameters gameParameters;
     public Camera mainCamera;
     public Camera resourceCamera;
@@ -35,10 +38,17 @@ public class WorldGenerator : MonoBehaviour
 
     public int seed = 1;
 
+    // TODO colonyAmount will be put from game parameters
+    public int colonyAmount = 8;
+
+    public int distanceBetweenColony = 2;
+
     public float hexMinRadius = 1;
 
 
     private readonly float sqrtOfThee = Mathf.Sqrt(3);
+    private readonly int waterResourceOffset = 1;
+    private readonly int coloniesOffset = 2;
 
     private RenderTexture renderTexture;
     private Material resourceMaterial;
@@ -79,6 +89,16 @@ public class WorldGenerator : MonoBehaviour
     public Vector3 GetHexCenterPosition(Vector3 position)
     {
         return GetHexPosition(GetHexIndices(position + offsetToCenter));
+    }
+
+    public bool IsHexNone(Vector3 position)
+    {
+        Vector2Int indices = GetHexIndices(position + offsetToCenter);
+
+        if (IsValidHexIndices(indices))
+            return worldAreaInfo.area[indices.x, indices.y].hexType == HexType.None;
+        else
+            return true;
     }
 
     public bool IsHexContainsResource(Vector3 position)
@@ -271,16 +291,54 @@ public class WorldGenerator : MonoBehaviour
         return snapshot.GetPixels32();
     }
 
+    private bool IsInsideMap(Vector3 position)
+    {
+        float width = gameParameters.mapSize.width;
+        float height = gameParameters.mapSize.height;
+        return position.x >= -width / 2f - Mathf.Epsilon &&
+            position.x <= width / 2f + Mathf.Epsilon &&
+            position.z >= -height / 2f - Mathf.Epsilon &&
+            position.z <= height / 2f + Mathf.Epsilon;
+    }
+
+    private bool IsHexInsideMap(Vector3 position)
+    {
+        float hexMaxRadius = 2f / sqrtOfThee * hexMinRadius;
+
+        int vertexAmount = 6;
+        Vector3[] offsets = new Vector3[]
+        {
+            new Vector3(0f, 0f, hexMaxRadius),
+            new Vector3(hexMinRadius, 0f, hexMaxRadius / 2f),
+            new Vector3(hexMinRadius, 0f, -hexMaxRadius / 2f),
+            new Vector3(0f, 0f, -hexMaxRadius),
+            new Vector3(-hexMinRadius, 0f, -hexMaxRadius / 2f),
+            new Vector3(-hexMinRadius, 0f, hexMaxRadius / 2f),
+        };
+        
+        for (int i = 0; i < vertexAmount; ++i)
+            if (!IsInsideMap(position + offsets[i]))
+                return false;
+
+        return true;
+    }
 
     private void InitLand()
     {
         for (int x = 0; x < width; ++x)
             for (int y = 0; y < height; ++y)
             {
-                HexCell hexCell = new HexCell
-                {
-                    hexType = HexType.Land
-                };
+                Vector2Int indices = new Vector2Int(x, y);
+                Vector3 centerPosition = GetHexPosition(indices);
+
+                HexCell hexCell;
+                if (IsHexInsideMap(centerPosition))
+                    hexCell = new HexCell
+                    {
+                        hexType = HexType.Land
+                    };
+                else
+                    hexCell = new HexCell();
                 worldAreaInfo.area[x, y] = hexCell;
             }
     }
@@ -331,8 +389,100 @@ public class WorldGenerator : MonoBehaviour
         for (int chankX = 0; chankX < width / chankSize; ++chankX)
             for (int chankY = 0; chankY < height / chankSize; ++chankY)
                 InitResourceChank(hexType, chankX, chankY);
+    }
 
-        resourceMaterial.SetVector("Vector2_Offset", Vector4.zero);
+    private bool IsValidDistanceToOtherColony(List<Vector2Int> colonyIndices, Vector2Int newColony, int minDistanceBetweenColony)
+    {
+        foreach (Vector2Int currentColony in colonyIndices)
+        {
+            int xDistance = Mathf.Abs(currentColony.x - newColony.x);
+            int yDistance = Mathf.Abs(currentColony.y - newColony.y);
+            int distanceSqr = xDistance * xDistance + yDistance * yDistance;
+
+            if (distanceSqr < (minDistanceBetweenColony + 1) * (minDistanceBetweenColony + 1))
+                return false;
+        }
+        return true;
+    }
+
+    private void AddColonyMainBases(List<Vector2Int> colonyIndices, int offsettedColoniesSeed)
+    {
+        InitResource(HexType.ColonyMainBase, offsettedColoniesSeed);
+
+        List<Vector2Int> allColonyIndices = new List<Vector2Int>();
+
+        for (int x = 0; x < width; ++x)
+            for (int y = 0; y < height; ++y)
+            {
+                HexCell hexCell = worldAreaInfo.area[x, y];
+
+                if (hexCell.hexType == HexType.ColonyMainBase)
+                {
+                    allColonyIndices.Add(new Vector2Int(x, y));
+
+                    hexCell.hexType = HexType.Land;
+                    worldAreaInfo.area[x, y] = hexCell;
+                }
+            }
+
+        Utils.Shuffle(allColonyIndices, offsettedColoniesSeed);
+        List<Vector2Int> unusedColonyIndices = new List<Vector2Int>();
+
+        int minDistanceBetweenColony = distanceBetweenColony;
+        void AddCorrectIndices()
+        {
+            for (int i = 0; i < allColonyIndices.Count && colonyIndices.Count != colonyAmount; ++i)
+            {
+                Vector2Int currentIndices = allColonyIndices[i];
+
+                if (IsValidDistanceToOtherColony(colonyIndices, currentIndices, distanceBetweenColony))
+                    colonyIndices.Add(currentIndices);
+                else
+                    unusedColonyIndices.Add(currentIndices);
+            }
+        }
+
+        AddCorrectIndices();
+
+        --minDistanceBetweenColony;
+        while (colonyIndices.Count != colonyAmount && unusedColonyIndices.Count != 0 && minDistanceBetweenColony >= 1)
+        {
+            allColonyIndices = unusedColonyIndices;
+            unusedColonyIndices = new List<Vector2Int>();
+            
+            AddCorrectIndices();
+
+            --minDistanceBetweenColony;
+        }
+    }
+
+    private void InitColonyMainBases(int coloniesSeed)
+    {
+        List<Vector2Int> colonyIndices = new List<Vector2Int>();
+
+        int offsettedColoniesSeed = coloniesSeed;
+        int previousAmount = 0;
+        while (colonyIndices.Count != colonyAmount)
+        {
+            AddColonyMainBases(colonyIndices, offsettedColoniesSeed);
+            ++offsettedColoniesSeed;
+            if (previousAmount == colonyIndices.Count)
+            {
+                Debug.LogError("Cannot add one more colony");
+                break;
+            }
+            previousAmount = colonyIndices.Count;
+        }
+
+        foreach (Vector2Int currentColony in colonyIndices)
+        {
+            HexCell hexCell = new HexCell
+            {
+                hexType = HexType.ColonyMainBase
+            };
+
+            worldAreaInfo.area[currentColony.x, currentColony.y] = hexCell;
+        }
     }
 
     private void SetResourcePrefabs()
@@ -358,6 +508,17 @@ public class WorldGenerator : MonoBehaviour
                     hexCell.indexInResourceArray = resourceDepositArray.Count;
                     resourceDepositArray.Add(resourceDepositScript);
                 }
+                else if (hexCell.hexType == HexType.ColonyMainBase)
+                {
+                    GameObject resourceDeposit = Instantiate(resourceDepositPrefab,
+                        GetHexPosition(new Vector2Int(x, y)),
+                        Quaternion.identity,
+                        resourcesTransform);
+                    ResourceName resourceName = resourceDeposit.GetComponent<ResourceName>();
+                    resourceName.resourceNameText.text = "Base";
+                    resourceDeposit.GetComponentInChildren<Canvas>().worldCamera = mainCamera;
+                    resourceDeposit.GetComponentInChildren<Image>().color = Color.blue;
+                }
             }
     }
 
@@ -370,7 +531,9 @@ public class WorldGenerator : MonoBehaviour
 
         InitLand();
 
-        InitResource(HexType.Water, seed + 1);
+        InitResource(HexType.Water, seed + waterResourceOffset);
+
+        InitColonyMainBases(seed + coloniesOffset);
 
         SetResourcePrefabs();
     }
@@ -401,5 +564,11 @@ public class WorldGenerator : MonoBehaviour
         hexSideSize = hexMinRadius * 2f / sqrtOfThee;
 
         InitWorld();
+    }
+
+    private void OnDisable()
+    {
+        resourceMaterial.SetFloat("Vector1_Seed", 0);
+        resourceMaterial.SetVector("Vector2_Offset", Vector4.zero);
     }
 }

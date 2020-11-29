@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 public static class Utils
 {
@@ -26,5 +27,18 @@ public static class Utils
     {
         Vector3 mousePosition = Input.mousePosition;
         return IntersectionScreenPointRayWithXOZPlane(mousePosition, mainCamera, out intersectPoint);
+    }
+
+    public static void Shuffle<T>(IList<T> list, int seed)
+    {
+        Random.InitState(seed);
+
+        for (int i = 0; i < list.Count - 1; ++i)
+        {
+            int index = Random.Range(i + 1, list.Count);
+            T temp = list[index];
+            list[index] = list[i];
+            list[i] = temp;
+        }
     }
 }
