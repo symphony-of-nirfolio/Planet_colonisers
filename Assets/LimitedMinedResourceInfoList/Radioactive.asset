@@ -12,5 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ce913aba8d46d7a4f8b44a5878d8fca5, type: 3}
   m_Name: Radioactive
   m_EditorClassIdentifier: 
-  gameResourceType: 0
-  sprite: {fileID: 0}
+  gameResourceType: 7
+  sprite: {fileID: 21300000, guid: 9cfeb0e9bf7ae91468578f6d182566af, type: 3}
