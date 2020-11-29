@@ -43,6 +43,7 @@ public class NewGameMenu : MonoBehaviour
         GameParametersLoader gameParametersLoader = gameParametersLoaderGameObject.AddComponent<GameParametersLoader>();
         gameParametersLoader.colonyType = currentColonyType;
         gameParametersLoader.mapSize = currentMapSize;
+        gameParametersLoader.colonyAmount = currentColonyAmount;
         gameParametersLoader.planetInfo = currentPlanetInfo;
 
         SceneManager.LoadScene("GameScene");
