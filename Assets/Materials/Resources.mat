@@ -53,7 +53,7 @@ Material:
     - Vector1_CBD9D46E: 0.22
     - Vector1_Riddling: 0.001
     - Vector1_Scale: 0.16
-    - Vector1_Seed: 3
+    - Vector1_Seed: 0
     - _AlphaClip: 0
     - _Blend: 0
     - _BumpScale: 1
