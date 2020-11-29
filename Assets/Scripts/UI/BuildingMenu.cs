@@ -15,13 +15,25 @@ public class BuildingMenu : MonoBehaviour
     public GameObject buildingTypeItemPrefab;
 
 
+    private GameObject[] buildingButtons = new GameObject[0];
+
+
     private void UpdateBuildingItemList(BuildingItem[] buildingItems)
     {
         buildingLayoutGroup.DetachChildren();
 
+        foreach (GameObject buildingButton in buildingButtons)
+        {
+            Destroy(buildingButton);
+        }
+
+        buildingButtons = new GameObject[buildingItems.Length];
+        int index = 0;
         foreach (BuildingItem buildingItem in buildingItems)
         {
             GameObject buildingButton = Instantiate(buildingItemPrefab, buildingLayoutGroup);
+            buildingButtons[index] = buildingButton;
+            ++index;
 
             BuildingMenuItem buildingMenuItem = buildingButton.GetComponent<BuildingMenuItem>();
             buildingMenuItem.image.sprite = buildingItem.buildingSprite;

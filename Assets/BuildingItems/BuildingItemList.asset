@@ -16,6 +16,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: df12b8ee47827644c9b82439343fdcbe, type: 2}
   - {fileID: 11400000, guid: eaf6012da42411347a28c8c48eeeb1d0, type: 2}
   - {fileID: 11400000, guid: d5f1db29f3cba3d4c8b40502026eb7b6, type: 2}
+  - {fileID: 11400000, guid: 40ec90a9bcaf434419f6ced64f0a021e, type: 2}
   buildingTypeItemToBuildingItems:
   - buildingTypeItem: {fileID: 11400000, guid: e2d19bf1bc8e7ba40aef7af34bb63403, type: 2}
     buildingItems:
@@ -24,3 +25,6 @@ MonoBehaviour:
     buildingItems:
     - {fileID: 11400000, guid: eaf6012da42411347a28c8c48eeeb1d0, type: 2}
     - {fileID: 11400000, guid: d5f1db29f3cba3d4c8b40502026eb7b6, type: 2}
+  - buildingTypeItem: {fileID: 11400000, guid: 0b63a07644baf624988952dc83adb95b, type: 2}
+    buildingItems:
+    - {fileID: 11400000, guid: 40ec90a9bcaf434419f6ced64f0a021e, type: 2}

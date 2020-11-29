@@ -7,6 +7,8 @@ public class Builder : MonoBehaviour
     public Camera mainCamera;
     public WorldGenerator worldGenerator;
 
+    public Transform buildingsTransform;
+
     public Color validPositionColor;
     public Color invalidPositionColor;
 
@@ -65,7 +67,7 @@ public class Builder : MonoBehaviour
         if (currentBuilding)
         {
             Vector3 position = currentBuilding.transform.position - Vector3.up * preViewOffset;
-            GameObject building = Instantiate(currentBuildingPrefab, position, Quaternion.identity);
+            GameObject building = Instantiate(currentBuildingPrefab, position, Quaternion.identity, buildingsTransform);
 
             if (isCurrentBuildResourceExtractor)
             {
@@ -97,6 +99,11 @@ public class Builder : MonoBehaviour
         {
             Debug.LogError("World Generator doesn't set");
             worldGenerator = FindObjectOfType<WorldGenerator>();
+        }
+
+        if (!buildingsTransform)
+        {
+            Debug.LogWarning("Buildings transform is null, so new buildings will be attached to the root transform");
         }
     }
 
