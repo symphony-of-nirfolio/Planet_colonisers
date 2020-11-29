@@ -3614,6 +3614,36 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 8048532819884688368, guid: 9cc8be11d7c837844acea9550db3d860, type: 3}
   m_PrefabInstance: {fileID: 15531458}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1337586663
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1337586664}
+  m_Layer: 0
+  m_Name: MainBaseLocations
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1337586664
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1337586663}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 1824973828}
+  m_RootOrder: 2
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1349509732
 GameObject:
   m_ObjectHideFlags: 0
@@ -4794,14 +4824,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gameParameters: {fileID: 1828656292}
   mainCamera: {fileID: 523178580}
+  limitedMinedResourceInfoList: {fileID: 11400000, guid: 18b2b2f1926038d41a8ed5d7c2fd7b90, type: 2}
   resourceCamera: {fileID: 41540850}
   resourceRenderer: {fileID: 1298340121}
   resourcesTransform: {fileID: 979551468}
+  mainBaseLocationsTransform: {fileID: 1337586664}
   resourceDepositPrefab: {fileID: 5802457723012504393, guid: e2ec0dc17032c8c4f9c66e7bc2917599, type: 3}
+  mainBaseLocationPrefab: {fileID: 5802457723012504393, guid: 1f3cb936f54711040be73835be09885f, type: 3}
   seed: 1
-  colonyAmount: 8
-  distanceBetweenColony: 2
+  distanceBetweenColony: 15
   hexMinRadius: 2
+  defaultRiddling: 0.001
+  mainBaseRiddling: 0.0003
 --- !u!4 &1824973828
 Transform:
   m_ObjectHideFlags: 0
@@ -4815,6 +4849,7 @@ Transform:
   m_Children:
   - {fileID: 1679197554}
   - {fileID: 979551468}
+  - {fileID: 1337586664}
   m_Father: {fileID: 0}
   m_RootOrder: 8
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -4849,6 +4884,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   colonyType: {fileID: 11400000, guid: 6f367fa34b18b004882f48cfcd3029fa, type: 2}
   mapSize: {fileID: 11400000, guid: 41f00f42101c95f4d94117c7faec32b1, type: 2}
+  colonyAmount: 4
   planetInfo: {fileID: 11400000, guid: 93a97cae676d37048884250a157ee939, type: 2}
 --- !u!4 &1828656293
 Transform:
@@ -4928,6 +4964,7 @@ MonoBehaviour:
   freezer: {fileID: 593734114}
   mainCamera: {fileID: 523178580}
   worldGenerator: {fileID: 1824973827}
+  buildingsTransform: {fileID: 0}
   validPositionColor: {r: 0.019017458, g: 1, b: 0, a: 1}
   invalidPositionColor: {r: 1, g: 0, b: 0, a: 1}
   preViewOffset: 0.01

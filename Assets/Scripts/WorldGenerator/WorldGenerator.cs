@@ -12,7 +12,14 @@ public class WorldGenerator : MonoBehaviour
         Land            = 0b_0000_0000_0000_0001,
         Building        = 0b_0000_0000_0000_0010,
         ColonyMainBase  = 0b_0000_0000_0000_0100,
+
         Water           = 0b_0000_0000_0000_1000,
+        Metals          = 0b_0000_0000_0001_0000,
+        RareMetals      = 0b_0000_0000_0010_0000,
+        Dust            = 0b_0000_0000_0100_0000,
+        Radioactive     = 0b_0000_0000_1000_0000,
+        
+        AllResources    = Water | Metals | RareMetals | Dust | Radioactive
     }
 
     public class HexCell
@@ -31,24 +38,27 @@ public class WorldGenerator : MonoBehaviour
 
     public GameParameters gameParameters;
     public Camera mainCamera;
+    public LimitedMinedResourceInfoList limitedMinedResourceInfoList;
     public Camera resourceCamera;
     public Renderer resourceRenderer;
     public Transform resourcesTransform;
+    public Transform mainBaseLocationsTransform;
     public GameObject resourceDepositPrefab;
+    public GameObject mainBaseLocationPrefab;
 
     public int seed = 1;
-
-    // TODO colonyAmount will be put from game parameters
-    public int colonyAmount = 8;
 
     public int distanceBetweenColony = 2;
 
     public float hexMinRadius = 1;
 
+    public float defaultRiddling = 0.001f;
+    public float mainBaseRiddling = 0.0003f;
+
 
     private readonly float sqrtOfThee = Mathf.Sqrt(3);
     private readonly int waterResourceOffset = 1;
-    private readonly int coloniesOffset = 2;
+    private readonly int coloniesOffset = 10;
 
     private RenderTexture renderTexture;
     private Material resourceMaterial;
@@ -64,6 +74,7 @@ public class WorldGenerator : MonoBehaviour
     private int chankSize;
     private int width;
     private int height;
+    private int colonyAmount;
 
 
     public Vector2Int GetHexIndices(Vector3 position)
@@ -241,9 +252,7 @@ public class WorldGenerator : MonoBehaviour
 
     private HexType GetResourceOnly(HexType hexType)
     {
-        HexType noResourceTypes = HexType.Land | HexType.Building;
-
-        return hexType & ~noResourceTypes;
+        return hexType & HexType.AllResources;
     }
 
     private bool IsResourceOnlyType(HexType hexType)
@@ -251,6 +260,10 @@ public class WorldGenerator : MonoBehaviour
         switch (hexType)
         {
             case HexType.Water:
+            case HexType.Metals:
+            case HexType.RareMetals:
+            case HexType.Dust:
+            case HexType.Radioactive:
                 return true;
             default:
                 return false;
@@ -270,9 +283,37 @@ public class WorldGenerator : MonoBehaviour
         {
             case HexType.Water:
                 return GameResourceType.Water;
+            case HexType.Metals:
+                return GameResourceType.Metals;
+            case HexType.RareMetals:
+                return GameResourceType.RareMetals;
+            case HexType.Dust:
+                return GameResourceType.Dust;
+            case HexType.Radioactive:
+                return GameResourceType.Radioactive;
             default:
                 Debug.LogWarning("Unresolved hex type");
                 return GameResourceType.Dust;
+        }
+    }
+
+    private HexType GameResourceTypeToHexType(GameResourceType gameResourceType)
+    {
+        switch (gameResourceType)
+        {
+            case GameResourceType.Water:
+                return HexType.Water;
+            case GameResourceType.Metals:
+                return HexType.Metals;
+            case GameResourceType.RareMetals:
+                return HexType.RareMetals;
+            case GameResourceType.Dust:
+                return HexType.Dust;
+            case GameResourceType.Radioactive:
+                return HexType.Radioactive;
+            default:
+                Debug.LogWarning("Unresolved game resource type");
+                return HexType.None;
         }
     }
 
@@ -382,13 +423,24 @@ public class WorldGenerator : MonoBehaviour
             }
     }
 
-    private void InitResource(HexType hexType, int resourceSeed)
+    private void InitResource(HexType hexType, float riddling, int resourceSeed)
     {
+        resourceMaterial.SetFloat("Vector1_Riddling", riddling);
         resourceMaterial.SetFloat("Vector1_Seed", resourceSeed);
 
         for (int chankX = 0; chankX < width / chankSize; ++chankX)
             for (int chankY = 0; chankY < height / chankSize; ++chankY)
                 InitResourceChank(hexType, chankX, chankY);
+    }
+
+    private void InitResources(int resourcesSeed)
+    {
+        int resourceSeed = resourcesSeed;
+        foreach (LimitedMinedResourceInfo resourceInfo in limitedMinedResourceInfoList.resourceInfos)
+        {
+            InitResource(GameResourceTypeToHexType(resourceInfo.gameResourceType), resourceInfo.riddling, resourceSeed);
+            ++resourceSeed;
+        }
     }
 
     private bool IsValidDistanceToOtherColony(List<Vector2Int> colonyIndices, Vector2Int newColony, int minDistanceBetweenColony)
@@ -407,7 +459,7 @@ public class WorldGenerator : MonoBehaviour
 
     private void AddColonyMainBases(List<Vector2Int> colonyIndices, int offsettedColoniesSeed)
     {
-        InitResource(HexType.ColonyMainBase, offsettedColoniesSeed);
+        InitResource(HexType.ColonyMainBase, mainBaseRiddling, offsettedColoniesSeed);
 
         List<Vector2Int> allColonyIndices = new List<Vector2Int>();
 
@@ -491,33 +543,31 @@ public class WorldGenerator : MonoBehaviour
             for (int y = 0; y < height; ++y)
             {
                 HexCell hexCell = worldAreaInfo.area[x, y];
-                if (hexCell.hexType == HexType.Water)
+                if (IsResourceOnlyType(hexCell.hexType))
                 {
+                    GameResourceType gameResourceType = HexTypeToGameResourceType(hexCell.hexType);
+
                     GameObject resourceDeposit = Instantiate(resourceDepositPrefab,
                         GetHexPosition(new Vector2Int(x, y)),
                         Quaternion.identity,
                         resourcesTransform);
-                    ResourceName resourceName = resourceDeposit.GetComponent<ResourceName>();
-                    resourceName.resourceNameText.text = "Water";
-                    resourceDeposit.GetComponentInChildren<Canvas>().worldCamera = mainCamera;
-                    ResourceDeposit resourceDepositScript = resourceDeposit.GetComponent<ResourceDeposit>();
 
+                    ResourceSprite resourceSprite = resourceDeposit.GetComponent<ResourceSprite>();
+                    resourceSprite.InitWithGameResourceType(gameResourceType);
+
+                    ResourceDeposit resourceDepositScript = resourceDeposit.GetComponent<ResourceDeposit>();
                     // TODO: add resource amount
-                    resourceDepositScript.SetResourceType(HexTypeToGameResourceType(hexCell.hexType));
+                    resourceDepositScript.SetResourceType(gameResourceType);
 
                     hexCell.indexInResourceArray = resourceDepositArray.Count;
                     resourceDepositArray.Add(resourceDepositScript);
                 }
                 else if (hexCell.hexType == HexType.ColonyMainBase)
                 {
-                    GameObject resourceDeposit = Instantiate(resourceDepositPrefab,
+                    Instantiate(mainBaseLocationPrefab,
                         GetHexPosition(new Vector2Int(x, y)),
                         Quaternion.identity,
-                        resourcesTransform);
-                    ResourceName resourceName = resourceDeposit.GetComponent<ResourceName>();
-                    resourceName.resourceNameText.text = "Base";
-                    resourceDeposit.GetComponentInChildren<Canvas>().worldCamera = mainCamera;
-                    resourceDeposit.GetComponentInChildren<Image>().color = Color.blue;
+                        mainBaseLocationsTransform);
                 }
             }
     }
@@ -531,7 +581,7 @@ public class WorldGenerator : MonoBehaviour
 
         InitLand();
 
-        InitResource(HexType.Water, seed + waterResourceOffset);
+        InitResources(seed + waterResourceOffset);
 
         InitColonyMainBases(seed + coloniesOffset);
 
@@ -543,10 +593,13 @@ public class WorldGenerator : MonoBehaviour
     {
         Debug.Assert(gameParameters, "Game Parameters doesn't set");
         Debug.Assert(mainCamera, "Main Camera doesn't set");
+        Debug.Assert(limitedMinedResourceInfoList, "Limited Mined Resource Info List doesn't set");
         Debug.Assert(resourceCamera, "Resource Camera doesn't set");
         Debug.Assert(resourceRenderer, "Resource Renderer doesn't set");
         Debug.Assert(resourcesTransform, "Resources Transform doesn't set");
+        Debug.Assert(mainBaseLocationsTransform, "Main Base Locations Transform doesn't set");
         Debug.Assert(resourceDepositPrefab, "Resource Deposit Prefab doesn't set");
+        Debug.Assert(mainBaseLocationPrefab, "Main Base Location Prefab doesn't set");
 
         renderTexture = resourceCamera.targetTexture;
         resourceMaterial = resourceRenderer.sharedMaterial;
@@ -563,11 +616,14 @@ public class WorldGenerator : MonoBehaviour
 
         hexSideSize = hexMinRadius * 2f / sqrtOfThee;
 
+        colonyAmount = gameParameters.colonyAmount;
+
         InitWorld();
     }
 
     private void OnDisable()
     {
+        resourceMaterial.SetFloat("Vector1_Riddling", defaultRiddling);
         resourceMaterial.SetFloat("Vector1_Seed", 0);
         resourceMaterial.SetVector("Vector2_Offset", Vector4.zero);
     }
