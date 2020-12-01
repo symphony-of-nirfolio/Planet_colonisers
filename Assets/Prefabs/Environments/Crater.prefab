@@ -44,7 +44,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aee7248c00e5568459f329e8243a5143, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mountainTransform: {fileID: 1262253033747149871}
+  evironmentTransform: {fileID: 1262253033747149871}
   minHeight: 150
   maxHeight: 400
 --- !u!1001 &1589441979774997444
