@@ -42,16 +42,16 @@ public class HexagonHighlighter : MonoBehaviour
             highlighter.SetActive(true);
 
             Vector3 hexCenter = worldGenerator.GetHexCenterPosition(enter);
-            bool isHexNone = worldGenerator.IsHexNone(enter);
+            bool isHexContainsLand = worldGenerator.IsHexContainsLand(enter);
             bool isHexContainsResource = worldGenerator.IsHexContainsResource(enter);
 
             Color hexColor;
-            if (isHexNone)
-                hexColor = noneHexColor;
+            if (isHexContainsLand)
+                hexColor = emptyHexColor;
             else if (isHexContainsResource)
                 hexColor = resourceHexColor;
             else
-                hexColor = emptyHexColor;
+                hexColor = noneHexColor;
 
             previousColor = Color.Lerp(previousColor, hexColor, Time.deltaTime * colorChangeSpeed);
             currentMaterial.SetColor("Color_Highlight", previousColor);
