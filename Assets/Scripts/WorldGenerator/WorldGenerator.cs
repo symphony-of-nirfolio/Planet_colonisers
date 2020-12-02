@@ -36,6 +36,14 @@ public class WorldGenerator : MonoBehaviour
         public HexCell[,] area;
     }
 
+    public class HexCellInfo
+    {
+        public ResourceDeposit resourceDeposit = null;
+        public GameObject building = null;
+        public string shortDescription = "Unavailable cell";
+        public HexType hexType = HexType.None;
+    }
+
 
     public GameParameters gameParameters;
     public Camera mainCamera;
@@ -122,6 +130,16 @@ public class WorldGenerator : MonoBehaviour
             return worldAreaInfo.area[indices.x, indices.y].hexType == HexType.None;
         else
             return true;
+    }
+
+    public bool IsHexContainsLand(Vector3 position)
+    {
+        Vector2Int indices = GetHexIndices(position + offsetToCenter);
+
+        if (IsValidHexIndices(indices))
+            return (worldAreaInfo.area[indices.x, indices.y].hexType & HexType.Land) == HexType.Land;
+        else
+            return false;
     }
 
     public bool IsHexContainsResource(Vector3 position)
@@ -215,6 +233,47 @@ public class WorldGenerator : MonoBehaviour
             return null;
     }
 
+    public HexCellInfo GetHexCellInfo(Vector3 position)
+    {
+        Vector2Int indices = GetHexIndices(position + offsetToCenter);
+
+        HexCellInfo hexCellInfo = new HexCellInfo();
+
+        if (IsValidHexIndices(indices))
+        {
+            HexCell hexCell = worldAreaInfo.area[indices.x, indices.y];
+            hexCellInfo.hexType = hexCell.hexType;
+
+            if (IsResourceType(hexCell.hexType))
+            {
+                hexCellInfo.shortDescription = "Cell with limited mined resource";
+
+                int resourceIndex = worldAreaInfo.area[indices.x, indices.y].indexInResourceArray;
+                if (resourceIndex != -1)
+                    hexCellInfo.resourceDeposit = resourceDepositArray[resourceIndex];
+                else
+                    Debug.LogError("Resource index is -1");
+            }
+            else if ((hexCell.hexType & HexType.Land) == HexType.Land)
+                hexCellInfo.shortDescription = "Free cell";
+            else if (hexCell.hexType == HexType.Crater)
+                hexCellInfo.shortDescription = "Unavailable cell with crater";
+            else if (hexCell.hexType == HexType.Mountain)
+                hexCellInfo.shortDescription = "Unavailable cell with mountain";
+
+            if ((hexCellInfo.hexType & HexType.Building) == HexType.Building)
+            {
+                int buildingIndex = worldAreaInfo.area[indices.x, indices.y].indexInBuildingArray;
+
+                if (buildingIndex != -1)
+                    hexCellInfo.building = buildingArray[buildingIndex];
+                else
+                    Debug.LogError("Building index is -1");
+            }
+        }
+
+        return hexCellInfo;
+    }
 
     private Vector2 CubeToAxial(Vector3 cube)
     {
