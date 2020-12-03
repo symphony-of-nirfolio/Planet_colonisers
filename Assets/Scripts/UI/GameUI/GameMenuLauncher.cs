@@ -12,6 +12,7 @@ public class GameMenuLauncher : MonoBehaviour
 
     public void ExitToMainMenu()
     {
+        freezer.FullUnfreeze();
         SceneManager.LoadScene("MainMenuScene");
     }
 
