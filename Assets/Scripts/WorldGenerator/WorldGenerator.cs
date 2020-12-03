@@ -625,6 +625,14 @@ public class WorldGenerator : MonoBehaviour
 
     private void SetResourcePrefabs()
     {
+        LimitedMinedResourceInfo[] hexTypeToLimitedMinedResourceInfo = new LimitedMinedResourceInfo[(int) HexType.AllResources];
+
+        foreach (LimitedMinedResourceInfo resourceInfo in limitedMinedResourceInfoList.resourceInfos)
+        {
+            HexType hexType = GameResourceTypeToHexType(resourceInfo.gameResourceType);
+            hexTypeToLimitedMinedResourceInfo[(int) hexType] = resourceInfo;
+        }
+
         for (int x = 0; x < width; ++x)
             for (int y = 0; y < height; ++y)
             {
@@ -642,6 +650,11 @@ public class WorldGenerator : MonoBehaviour
                     resourceSprite.InitWithGameResourceType(gameResourceType);
 
                     ResourceDeposit resourceDepositScript = resourceDeposit.GetComponent<ResourceDeposit>();
+
+                    LimitedMinedResourceInfo limitedMinedResourceInfo = hexTypeToLimitedMinedResourceInfo[(int) hexCell.hexType];
+                    float resourceAmount = limitedMinedResourceInfo.minAmount +
+                        Mathf.Pow(hexCell.resourceAmount / maxPossibleResourceValuePerCell, limitedMinedResourceInfo.power) *
+                        (limitedMinedResourceInfo.maxAmount - limitedMinedResourceInfo.minAmount);
                     // TODO: add resource amount
                     resourceDepositScript.SetResourceType(gameResourceType);
 
