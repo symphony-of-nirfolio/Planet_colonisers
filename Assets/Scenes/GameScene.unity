@@ -501,6 +501,14 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 404989401}
     - target: {fileID: 3146374057374408728, guid: 86cf3883be741d94890e267154165a0a, type: 3}
+      propertyPath: planeYOffset
+      value: -0.2137
+      objectReference: {fileID: 0}
+    - target: {fileID: 3146374057374408728, guid: 86cf3883be741d94890e267154165a0a, type: 3}
+      propertyPath: planeRenderer
+      value: 
+      objectReference: {fileID: 1070146056}
+    - target: {fileID: 3146374057374408728, guid: 86cf3883be741d94890e267154165a0a, type: 3}
       propertyPath: gameParameters
       value: 
       objectReference: {fileID: 521617432}
