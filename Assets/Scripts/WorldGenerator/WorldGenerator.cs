@@ -52,6 +52,7 @@ public class WorldGenerator : MonoBehaviour
     public Renderer resourceRenderer;
     public Camera mountainsCamera;
     public Renderer mountainsRenderer;
+    public Renderer planeRenderer;
     public Transform mountainsTransform;
     public Transform cratersTransform;
     public Transform resourcesTransform;
@@ -71,6 +72,8 @@ public class WorldGenerator : MonoBehaviour
     public float defaultRiddling = 0.001f;
     public float mainBaseRiddling = 0.0003f;
 
+    public float planeYOffset = -0.2137f;
+
 
     private readonly float sqrtOfThee = Mathf.Sqrt(3);
     private readonly float maxPossibleResourceValuePerCell = 4f * 256f;
@@ -82,6 +85,7 @@ public class WorldGenerator : MonoBehaviour
     private RenderTexture renderTexture;
     private Material resourceMaterial;
     private Material mountainMaterial;
+    private Material planeMaterial;
 
     private WorldAreaInfo worldAreaInfo;
     private readonly List<ResourceDeposit> resourceDepositArray = new List<ResourceDeposit>();
@@ -621,6 +625,14 @@ public class WorldGenerator : MonoBehaviour
 
     private void SetResourcePrefabs()
     {
+        LimitedMinedResourceInfo[] hexTypeToLimitedMinedResourceInfo = new LimitedMinedResourceInfo[(int) HexType.AllResources];
+
+        foreach (LimitedMinedResourceInfo resourceInfo in limitedMinedResourceInfoList.resourceInfos)
+        {
+            HexType hexType = GameResourceTypeToHexType(resourceInfo.gameResourceType);
+            hexTypeToLimitedMinedResourceInfo[(int) hexType] = resourceInfo;
+        }
+
         for (int x = 0; x < width; ++x)
             for (int y = 0; y < height; ++y)
             {
@@ -638,6 +650,11 @@ public class WorldGenerator : MonoBehaviour
                     resourceSprite.InitWithGameResourceType(gameResourceType);
 
                     ResourceDeposit resourceDepositScript = resourceDeposit.GetComponent<ResourceDeposit>();
+
+                    LimitedMinedResourceInfo limitedMinedResourceInfo = hexTypeToLimitedMinedResourceInfo[(int) hexCell.hexType];
+                    float resourceAmount = limitedMinedResourceInfo.minAmount +
+                        Mathf.Pow(hexCell.resourceAmount / maxPossibleResourceValuePerCell, limitedMinedResourceInfo.power) *
+                        (limitedMinedResourceInfo.maxAmount - limitedMinedResourceInfo.minAmount);
                     // TODO: add resource amount
                     resourceDepositScript.SetResourceType(gameResourceType);
 
@@ -706,6 +723,7 @@ public class WorldGenerator : MonoBehaviour
         Debug.Assert(resourceRenderer, "Resource Renderer doesn't set");
         Debug.Assert(mountainsCamera, "Mountains Camera doesn't set");
         Debug.Assert(mountainsRenderer, "Mountains Renderer doesn't set");
+        Debug.Assert(planeRenderer, "Plane Renderer doesn't set");
         Debug.Assert(mountainsTransform, "Mountains Transform doesn't set");
         Debug.Assert(cratersTransform, "Craters Transform doesn't set");
         Debug.Assert(resourcesTransform, "Resources Transform doesn't set");
@@ -717,6 +735,7 @@ public class WorldGenerator : MonoBehaviour
         renderTexture = resourceCamera.targetTexture;
         resourceMaterial = resourceRenderer.sharedMaterial;
         mountainMaterial = mountainsRenderer.sharedMaterial;
+        planeMaterial = planeRenderer.sharedMaterial;
 
         chankSize = renderTexture.width / 2;
 
@@ -725,6 +744,9 @@ public class WorldGenerator : MonoBehaviour
 
         width = mapSizeToWorldAreaSize(Mathf.RoundToInt(gameParameters.mapSize.width));
         height = mapSizeToWorldAreaSize(Mathf.RoundToInt(gameParameters.mapSize.height));
+
+        int repeatOffset = (int) gameParameters.mapSize.height / chankSize / 2 + 1;
+        planeMaterial.SetVector("Vector2_Offset", new Vector4(0f, planeYOffset * repeatOffset, 0f, 0f));
 
         offsetToCenter = new Vector3(width / 2f, 0f, height / 2f);
 
@@ -744,5 +766,7 @@ public class WorldGenerator : MonoBehaviour
         mountainMaterial.SetFloat("Vector1_Riddling", defaultRiddling);
         mountainMaterial.SetFloat("Vector1_Seed", 0);
         mountainMaterial.SetVector("Vector2_Offset", Vector4.zero);
+
+        planeMaterial.SetVector("Vector2_Offset", Vector4.zero);
     }
 }

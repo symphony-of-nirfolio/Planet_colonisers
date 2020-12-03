@@ -12,5 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 05fa7691cfe683149b677396de568a9a, type: 3}
   m_Name: Medium
   m_EditorClassIdentifier: 
-  width: 160
-  height: 90
+  width: 240
+  height: 135

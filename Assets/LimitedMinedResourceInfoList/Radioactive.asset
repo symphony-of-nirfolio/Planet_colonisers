@@ -15,3 +15,6 @@ MonoBehaviour:
   gameResourceType: 7
   sprite: {fileID: 21300000, guid: 9cfeb0e9bf7ae91468578f6d182566af, type: 3}
   riddling: 0.000045
+  minAmount: 10
+  maxAmount: 100
+  power: 0.25
