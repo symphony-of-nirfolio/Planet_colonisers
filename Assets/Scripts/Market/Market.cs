@@ -8,11 +8,11 @@ public class Market : MonoBehaviour
     private GameResourcesStorage initialMarketStorage;
     private GameResourcesStorage marketStorage;
     private float[] prices = new float[GameResourcesStorage.resourceCount];
-    private float[] initial_prices = new float[GameResourcesStorage.resourceCount];
+    private float[] initialPrices = new float[GameResourcesStorage.resourceCount];
 
     private bool needsToRefresh;
 
-    private Mutex trade_mutex = new Mutex();
+    private Mutex tradeMutex = new Mutex();
 
     public float refreshTime = 60;
     public float forcedRefreshTime = 0.1f;
@@ -30,7 +30,7 @@ public class Market : MonoBehaviour
         for(int i = 0; i < GameResourcesStorage.resourceCount; ++i)
         {
             prices[i] = 500;
-            initial_prices[i] = 500;
+            initialPrices[i] = 500;
         }
     }
 
@@ -54,7 +54,7 @@ public class Market : MonoBehaviour
     {
         for (int i = 0; i < GameResourcesStorage.resourceCount; ++i)
         {
-            prices[i] = initialMarketStorage.getResourceAmount((GameResourceType)i) * initial_prices[i] / marketStorage.getResourceAmount((GameResourceType)i);
+            prices[i] = initialMarketStorage.getResourceAmount((GameResourceType)i) * initialPrices[i] / marketStorage.getResourceAmount((GameResourceType)i);
         }
     }
 
@@ -74,19 +74,19 @@ public class Market : MonoBehaviour
         if (needsToRefresh)
             return false;
 
-        trade_mutex.WaitOne();
+        tradeMutex.WaitOne();
 
-        bool is_successfull_trade = false;
+        bool isSuccessfullTrade = false;
         if (res1.amount > marketStorage.getResourceAmount(res1.resourceType) &&
            res2.amount > marketStorage.getResourceAmount(res2.resourceType))
         {
             marketStorage.RemoveResource(res1.resourceType, res1.amount);
             marketStorage.RemoveResource(res2.resourceType, res2.amount);
-            is_successfull_trade = true;
+            isSuccessfullTrade = true;
             needsToRefresh = true;
         }
 
-        trade_mutex.ReleaseMutex();
-        return is_successfull_trade;
+        tradeMutex.ReleaseMutex();
+        return isSuccessfullTrade;
     }
 }
