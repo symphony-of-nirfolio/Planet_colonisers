@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class WorldGenerator : MonoBehaviour
 {
@@ -10,14 +9,16 @@ public class WorldGenerator : MonoBehaviour
     {
         None            = 0b_0000_0000_0000_0000,
         Land            = 0b_0000_0000_0000_0001,
-        Building        = 0b_0000_0000_0000_0010,
-        ColonyMainBase  = 0b_0000_0000_0000_0100,
+        Crater          = 0b_0000_0000_0000_0010,
+        Mountain        = 0b_0000_0000_0000_0100,
+        Building        = 0b_0000_0000_0000_1000,
+        ColonyMainBase  = 0b_0000_0000_0001_0000,
 
-        Water           = 0b_0000_0000_0000_1000,
-        Metals          = 0b_0000_0000_0001_0000,
-        RareMetals      = 0b_0000_0000_0010_0000,
-        Dust            = 0b_0000_0000_0100_0000,
-        Radioactive     = 0b_0000_0000_1000_0000,
+        Water           = 0b_0000_0000_0010_0000,
+        Metals          = 0b_0000_0000_0100_0000,
+        RareMetals      = 0b_0000_0000_1000_0000,
+        Dust            = 0b_0000_0001_0000_0000,
+        Radioactive     = 0b_0000_0010_0000_0000,
         
         AllResources    = Water | Metals | RareMetals | Dust | Radioactive
     }
@@ -35,14 +36,29 @@ public class WorldGenerator : MonoBehaviour
         public HexCell[,] area;
     }
 
+    public class HexCellInfo
+    {
+        public ResourceDeposit resourceDeposit = null;
+        public GameObject building = null;
+        public string shortDescription = "Unavailable cell";
+        public HexType hexType = HexType.None;
+    }
+
 
     public GameParameters gameParameters;
     public Camera mainCamera;
     public LimitedMinedResourceInfoList limitedMinedResourceInfoList;
     public Camera resourceCamera;
     public Renderer resourceRenderer;
+    public Camera mountainsCamera;
+    public Renderer mountainsRenderer;
+    public Renderer planeRenderer;
+    public Transform mountainsTransform;
+    public Transform cratersTransform;
     public Transform resourcesTransform;
     public Transform mainBaseLocationsTransform;
+    public GameObject mountainPrefab;
+    public GameObject craterPrefab;
     public GameObject resourceDepositPrefab;
     public GameObject mainBaseLocationPrefab;
 
@@ -52,16 +68,24 @@ public class WorldGenerator : MonoBehaviour
 
     public float hexMinRadius = 1;
 
+    public float craterRiddling = 0.0001f;
     public float defaultRiddling = 0.001f;
     public float mainBaseRiddling = 0.0003f;
 
+    public float planeYOffset = -0.2137f;
+
 
     private readonly float sqrtOfThee = Mathf.Sqrt(3);
-    private readonly int waterResourceOffset = 1;
-    private readonly int coloniesOffset = 10;
+    private readonly float maxPossibleResourceValuePerCell = 4f * 256f;
+    private readonly int mountainOffset = 1;
+    private readonly int craterOffset = 11;
+    private readonly int waterResourceOffset = 21;
+    private readonly int coloniesOffset = 31;
 
     private RenderTexture renderTexture;
     private Material resourceMaterial;
+    private Material mountainMaterial;
+    private Material planeMaterial;
 
     private WorldAreaInfo worldAreaInfo;
     private readonly List<ResourceDeposit> resourceDepositArray = new List<ResourceDeposit>();
@@ -110,6 +134,16 @@ public class WorldGenerator : MonoBehaviour
             return worldAreaInfo.area[indices.x, indices.y].hexType == HexType.None;
         else
             return true;
+    }
+
+    public bool IsHexContainsLand(Vector3 position)
+    {
+        Vector2Int indices = GetHexIndices(position + offsetToCenter);
+
+        if (IsValidHexIndices(indices))
+            return (worldAreaInfo.area[indices.x, indices.y].hexType & HexType.Land) == HexType.Land;
+        else
+            return false;
     }
 
     public bool IsHexContainsResource(Vector3 position)
@@ -203,6 +237,47 @@ public class WorldGenerator : MonoBehaviour
             return null;
     }
 
+    public HexCellInfo GetHexCellInfo(Vector3 position)
+    {
+        Vector2Int indices = GetHexIndices(position + offsetToCenter);
+
+        HexCellInfo hexCellInfo = new HexCellInfo();
+
+        if (IsValidHexIndices(indices))
+        {
+            HexCell hexCell = worldAreaInfo.area[indices.x, indices.y];
+            hexCellInfo.hexType = hexCell.hexType;
+
+            if (IsResourceType(hexCell.hexType))
+            {
+                hexCellInfo.shortDescription = "Cell with limited mined resource";
+
+                int resourceIndex = worldAreaInfo.area[indices.x, indices.y].indexInResourceArray;
+                if (resourceIndex != -1)
+                    hexCellInfo.resourceDeposit = resourceDepositArray[resourceIndex];
+                else
+                    Debug.LogError("Resource index is -1");
+            }
+            else if ((hexCell.hexType & HexType.Land) == HexType.Land)
+                hexCellInfo.shortDescription = "Free cell";
+            else if (hexCell.hexType == HexType.Crater)
+                hexCellInfo.shortDescription = "Unavailable cell with crater";
+            else if (hexCell.hexType == HexType.Mountain)
+                hexCellInfo.shortDescription = "Unavailable cell with mountain";
+
+            if ((hexCellInfo.hexType & HexType.Building) == HexType.Building)
+            {
+                int buildingIndex = worldAreaInfo.area[indices.x, indices.y].indexInBuildingArray;
+
+                if (buildingIndex != -1)
+                    hexCellInfo.building = buildingArray[buildingIndex];
+                else
+                    Debug.LogError("Building index is -1");
+            }
+        }
+
+        return hexCellInfo;
+    }
 
     private Vector2 CubeToAxial(Vector3 cube)
     {
@@ -317,17 +392,17 @@ public class WorldGenerator : MonoBehaviour
         }
     }
 
-    private Color32[] TakeResourceSnapshot(int xOffset, int yOffset)
+    private Color32[] TakeResourceSnapshot(int xOffset, int yOffset, Material currentMaterial, Camera currentCamera)
     {
-        resourceCamera.gameObject.SetActive(true);
+        currentCamera.gameObject.SetActive(true);
 
-        resourceMaterial.SetVector("Vector2_Offset", new Vector4(xOffset, yOffset, 0f, 0f));
+        currentMaterial.SetVector("Vector2_Offset", new Vector4(xOffset, yOffset, 0f, 0f));
         Texture2D snapshot = new Texture2D(renderTexture.width, renderTexture.height, TextureFormat.RGB24, false);
-        resourceCamera.Render();
+        currentCamera.Render();
         RenderTexture.active = renderTexture;
         snapshot.ReadPixels(new Rect(0f, 0f, renderTexture.width, renderTexture.height), 0, 0);
 
-        resourceCamera.gameObject.SetActive(false);
+        currentCamera.gameObject.SetActive(false);
 
         return snapshot.GetPixels32();
     }
@@ -384,12 +459,12 @@ public class WorldGenerator : MonoBehaviour
             }
     }
 
-    private void InitResourceChank(HexType hexType, int chankX, int chankY)
+    private void InitChankWithHexType(HexType hexType, int chankX, int chankY, Material currentMaterial, Camera currentCamera, bool isIncludeNoneType)
     {
         int currentXOffset = chankX * chankSize;
         int currentYOffset = chankY * chankSize;
 
-        Color32[] colors = TakeResourceSnapshot(chankX, chankY);
+        Color32[] colors = TakeResourceSnapshot(chankX, chankY, currentMaterial, currentCamera);
 
         for (int pixelX = 0; pixelX < renderTexture.width; ++pixelX)
             for (int pixelY = 0; pixelY < renderTexture.height; ++pixelY)
@@ -411,7 +486,7 @@ public class WorldGenerator : MonoBehaviour
 
                             worldAreaInfo.area[indices.x, indices.y] = hexCell;
                         }
-                        else if (hexCell.hexType == HexType.Land)
+                        else if ((isIncludeNoneType && hexCell.hexType == HexType.None) || hexCell.hexType == HexType.Land)
                         {
                             hexCell.hexType = hexType;
                             hexCell.resourceAmount += color.r;
@@ -423,14 +498,24 @@ public class WorldGenerator : MonoBehaviour
             }
     }
 
-    private void InitResource(HexType hexType, float riddling, int resourceSeed)
+    private void InitWorldAreaWithHexType(HexType hexType, float riddling, int areaSeed, Material currentMaterial, Camera currentCamera, bool isIncludeNoneType)
     {
-        resourceMaterial.SetFloat("Vector1_Riddling", riddling);
-        resourceMaterial.SetFloat("Vector1_Seed", resourceSeed);
+        currentMaterial.SetFloat("Vector1_Riddling", riddling);
+        currentMaterial.SetFloat("Vector1_Seed", areaSeed);
 
         for (int chankX = 0; chankX < width / chankSize; ++chankX)
             for (int chankY = 0; chankY < height / chankSize; ++chankY)
-                InitResourceChank(hexType, chankX, chankY);
+                InitChankWithHexType(hexType, chankX, chankY, currentMaterial, currentCamera, isIncludeNoneType);
+    }
+
+    private void InitMountains(int mountainsSeed)
+    {
+        InitWorldAreaWithHexType(HexType.Mountain, defaultRiddling, mountainsSeed, mountainMaterial, mountainsCamera, true);
+    }
+
+    private void InitCraters(int cratersSeed)
+    {
+        InitWorldAreaWithHexType(HexType.Crater, craterRiddling, cratersSeed, resourceMaterial, resourceCamera, true);
     }
 
     private void InitResources(int resourcesSeed)
@@ -438,7 +523,8 @@ public class WorldGenerator : MonoBehaviour
         int resourceSeed = resourcesSeed;
         foreach (LimitedMinedResourceInfo resourceInfo in limitedMinedResourceInfoList.resourceInfos)
         {
-            InitResource(GameResourceTypeToHexType(resourceInfo.gameResourceType), resourceInfo.riddling, resourceSeed);
+            InitWorldAreaWithHexType(GameResourceTypeToHexType(resourceInfo.gameResourceType),
+                resourceInfo.riddling, resourceSeed, resourceMaterial, resourceCamera, false);
             ++resourceSeed;
         }
     }
@@ -459,7 +545,7 @@ public class WorldGenerator : MonoBehaviour
 
     private void AddColonyMainBases(List<Vector2Int> colonyIndices, int offsettedColoniesSeed)
     {
-        InitResource(HexType.ColonyMainBase, mainBaseRiddling, offsettedColoniesSeed);
+        InitWorldAreaWithHexType(HexType.ColonyMainBase, mainBaseRiddling, offsettedColoniesSeed, resourceMaterial, resourceCamera, false);
 
         List<Vector2Int> allColonyIndices = new List<Vector2Int>();
 
@@ -539,6 +625,14 @@ public class WorldGenerator : MonoBehaviour
 
     private void SetResourcePrefabs()
     {
+        LimitedMinedResourceInfo[] hexTypeToLimitedMinedResourceInfo = new LimitedMinedResourceInfo[(int) HexType.AllResources];
+
+        foreach (LimitedMinedResourceInfo resourceInfo in limitedMinedResourceInfoList.resourceInfos)
+        {
+            HexType hexType = GameResourceTypeToHexType(resourceInfo.gameResourceType);
+            hexTypeToLimitedMinedResourceInfo[(int) hexType] = resourceInfo;
+        }
+
         for (int x = 0; x < width; ++x)
             for (int y = 0; y < height; ++y)
             {
@@ -556,11 +650,37 @@ public class WorldGenerator : MonoBehaviour
                     resourceSprite.InitWithGameResourceType(gameResourceType);
 
                     ResourceDeposit resourceDepositScript = resourceDeposit.GetComponent<ResourceDeposit>();
-                    // TODO: add random resource amount
-                    resourceDepositScript.SetResourceType(gameResourceType, 5000);
+
+                    LimitedMinedResourceInfo limitedMinedResourceInfo = hexTypeToLimitedMinedResourceInfo[(int) hexCell.hexType];
+                    float resourceAmount = limitedMinedResourceInfo.minAmount +
+                        Mathf.Pow(hexCell.resourceAmount / maxPossibleResourceValuePerCell, limitedMinedResourceInfo.power) *
+                        (limitedMinedResourceInfo.maxAmount - limitedMinedResourceInfo.minAmount);
+                    resourceDepositScript.SetResourceType(gameResourceType, resourceAmount);
 
                     hexCell.indexInResourceArray = resourceDepositArray.Count;
                     resourceDepositArray.Add(resourceDepositScript);
+                }
+                else if (hexCell.hexType == HexType.Mountain)
+                {
+                    GameObject mountain = Instantiate(mountainPrefab,
+                        GetHexPosition(new Vector2Int(x, y)),
+                        Quaternion.identity,
+                        mountainsTransform);
+
+                    EnvironmentHeightParameter environmentHeightParameter =
+                        mountain.GetComponent<EnvironmentHeightParameter>();
+                    environmentHeightParameter.InitHeight(hexCell.resourceAmount / maxPossibleResourceValuePerCell);
+                }
+                else if (hexCell.hexType == HexType.Crater)
+                {
+                    GameObject crater = Instantiate(craterPrefab,
+                        GetHexPosition(new Vector2Int(x, y)),
+                        Quaternion.identity,
+                        cratersTransform);
+
+                    EnvironmentHeightParameter environmentHeightParameter =
+                        crater.GetComponent<EnvironmentHeightParameter>();
+                    environmentHeightParameter.InitHeight(hexCell.resourceAmount / maxPossibleResourceValuePerCell);
                 }
                 else if (hexCell.hexType == HexType.ColonyMainBase)
                 {
@@ -581,6 +701,10 @@ public class WorldGenerator : MonoBehaviour
 
         InitLand();
 
+        InitMountains(seed + mountainOffset);
+
+        InitCraters(seed + craterOffset);
+
         InitResources(seed + waterResourceOffset);
 
         InitColonyMainBases(seed + coloniesOffset);
@@ -596,13 +720,21 @@ public class WorldGenerator : MonoBehaviour
         Debug.Assert(limitedMinedResourceInfoList, "Limited Mined Resource Info List doesn't set");
         Debug.Assert(resourceCamera, "Resource Camera doesn't set");
         Debug.Assert(resourceRenderer, "Resource Renderer doesn't set");
+        Debug.Assert(mountainsCamera, "Mountains Camera doesn't set");
+        Debug.Assert(mountainsRenderer, "Mountains Renderer doesn't set");
+        Debug.Assert(planeRenderer, "Plane Renderer doesn't set");
+        Debug.Assert(mountainsTransform, "Mountains Transform doesn't set");
+        Debug.Assert(cratersTransform, "Craters Transform doesn't set");
         Debug.Assert(resourcesTransform, "Resources Transform doesn't set");
         Debug.Assert(mainBaseLocationsTransform, "Main Base Locations Transform doesn't set");
+        Debug.Assert(craterPrefab, "Crater Prefab doesn't set");
         Debug.Assert(resourceDepositPrefab, "Resource Deposit Prefab doesn't set");
         Debug.Assert(mainBaseLocationPrefab, "Main Base Location Prefab doesn't set");
 
         renderTexture = resourceCamera.targetTexture;
         resourceMaterial = resourceRenderer.sharedMaterial;
+        mountainMaterial = mountainsRenderer.sharedMaterial;
+        planeMaterial = planeRenderer.sharedMaterial;
 
         chankSize = renderTexture.width / 2;
 
@@ -611,6 +743,9 @@ public class WorldGenerator : MonoBehaviour
 
         width = mapSizeToWorldAreaSize(Mathf.RoundToInt(gameParameters.mapSize.width));
         height = mapSizeToWorldAreaSize(Mathf.RoundToInt(gameParameters.mapSize.height));
+
+        int repeatOffset = (int) gameParameters.mapSize.height / chankSize / 2 + 1;
+        planeMaterial.SetVector("Vector2_Offset", new Vector4(0f, planeYOffset * repeatOffset, 0f, 0f));
 
         offsetToCenter = new Vector3(width / 2f, 0f, height / 2f);
 
@@ -626,5 +761,11 @@ public class WorldGenerator : MonoBehaviour
         resourceMaterial.SetFloat("Vector1_Riddling", defaultRiddling);
         resourceMaterial.SetFloat("Vector1_Seed", 0);
         resourceMaterial.SetVector("Vector2_Offset", Vector4.zero);
+
+        mountainMaterial.SetFloat("Vector1_Riddling", defaultRiddling);
+        mountainMaterial.SetFloat("Vector1_Seed", 0);
+        mountainMaterial.SetVector("Vector2_Offset", Vector4.zero);
+
+        planeMaterial.SetVector("Vector2_Offset", Vector4.zero);
     }
 }
