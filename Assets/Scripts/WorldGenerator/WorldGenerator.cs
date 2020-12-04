@@ -556,8 +556,8 @@ public class WorldGenerator : MonoBehaviour
                     resourceSprite.InitWithGameResourceType(gameResourceType);
 
                     ResourceDeposit resourceDepositScript = resourceDeposit.GetComponent<ResourceDeposit>();
-                    // TODO: add resource amount
-                    resourceDepositScript.SetResourceType(gameResourceType);
+                    // TODO: add random resource amount
+                    resourceDepositScript.SetResourceType(gameResourceType, 5000);
 
                     hexCell.indexInResourceArray = resourceDepositArray.Count;
                     resourceDepositArray.Add(resourceDepositScript);

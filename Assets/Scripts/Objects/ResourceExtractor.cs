@@ -7,7 +7,7 @@ using UnityEngine;
 
 class ResourceExtractor : MonoBehaviour
 {
-
+    public GameObject globalStorage;
     private GameResourcesStorage inventory;
     private GameResourceType resourceType;
     private ResourceDeposit deposit;
@@ -16,6 +16,12 @@ class ResourceExtractor : MonoBehaviour
     public float resourceGatherTime = 3.0f;
     public float resourcesPerGather = 1.0f;
     private float timer = 0.0f;
+
+    private void Start()
+    {
+        globalStorage = GameObject.Find("GlobalStorage");
+        inventory = new GameResourcesStorage();
+    }
 
     private void Update()
     {
@@ -44,6 +50,7 @@ class ResourceExtractor : MonoBehaviour
         {
             deposit.GetResourceFromDeposit(resourcesPerGather);
             inventory.AddResource(resourceType, resourcesPerGather);
+            globalStorage.GetComponent<GlobalStorage>().AddResource(resourceType, resourcesPerGather);
         }
     }
 

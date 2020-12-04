@@ -9,13 +9,15 @@ public class ResourceDeposit : MonoBehaviour
 {
     private GameResource resource;
     private bool isResourseSet = false;
-    public int maxAmount;
+    private float maxAmount;
 
-    public void SetResourceType(GameResourceType resourceType)
+    public void SetResourceType(GameResourceType resourceType, float amount = 0)
     {
         Debug.Assert(!isResourseSet);
         this.resource = new GameResource(resourceType);
         isResourseSet = true;
+        maxAmount = amount;
+        resource.amount = amount;
     }
 
     public void GetResourceFromDeposit(float amount)
@@ -32,6 +34,11 @@ public class ResourceDeposit : MonoBehaviour
     public float AvailableResource()
     {
         return resource.amount;
+    }
+
+    public float GetMaxAmount()
+    {
+        return maxAmount;
     }
     
 }
