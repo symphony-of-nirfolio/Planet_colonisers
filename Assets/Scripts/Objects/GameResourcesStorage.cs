@@ -8,7 +8,7 @@ using UnityEngine;
 
 public class GameResourcesStorage
 {
-    const int resourceCount = 12; 
+    public const int resourceCount = 12; 
 
     private GameResource[] storage = new GameResource[resourceCount];
 
@@ -33,5 +33,10 @@ public class GameResourcesStorage
         Debug.Assert(storage[(int)resource].amount - count >= 0);
         Debug.Assert((int)resource < resourceCount);
         storage[(int)resource].amount -= count;
+    }
+
+    public float getResourceAmount(GameResourceType resourceType)
+    {
+        return storage[(int)resourceType].amount;
     }
 }

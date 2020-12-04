@@ -655,8 +655,7 @@ public class WorldGenerator : MonoBehaviour
                     float resourceAmount = limitedMinedResourceInfo.minAmount +
                         Mathf.Pow(hexCell.resourceAmount / maxPossibleResourceValuePerCell, limitedMinedResourceInfo.power) *
                         (limitedMinedResourceInfo.maxAmount - limitedMinedResourceInfo.minAmount);
-                    // TODO: add resource amount
-                    resourceDepositScript.SetResourceType(gameResourceType);
+                    resourceDepositScript.SetResourceType(gameResourceType, resourceAmount);
 
                     hexCell.indexInResourceArray = resourceDepositArray.Count;
                     resourceDepositArray.Add(resourceDepositScript);
