@@ -42,7 +42,8 @@ public class HexagonHighlighter : MonoBehaviour
 
         if (Input.GetMouseButton((int) MouseButton.LeftMouse) ||
             Input.GetMouseButton((int) MouseButton.MiddleMouse) ||
-            Input.GetMouseButton((int) MouseButton.RightMouse))
+            Input.GetMouseButton((int) MouseButton.RightMouse) ||
+            Input.mouseScrollDelta.sqrMagnitude > Mathf.Epsilon)
         {
             return false;
         }
