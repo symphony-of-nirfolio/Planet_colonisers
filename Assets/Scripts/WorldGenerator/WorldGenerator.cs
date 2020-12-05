@@ -23,12 +23,20 @@ public class WorldGenerator : MonoBehaviour
         AllResources    = Water | Metals | RareMetals | Dust | Radioactive
     }
 
-    public class HexCell
+    public struct HexCell
     {
-        public float resourceAmount = 0f;
-        public int indexInResourceArray = -1;
-        public int indexInBuildingArray = -1;
-        public HexType hexType = HexType.None;
+        public float resourceAmount;
+        public short indexInResourceArray;
+        public short indexInBuildingArray;
+        public HexType hexType;
+
+        public static HexCell Empty { get => new HexCell
+        {
+            resourceAmount = 0f,
+            indexInResourceArray = -1,
+            indexInBuildingArray = -1,
+            hexType = HexType.None
+        }; }
     }
 
     public class WorldAreaInfo
@@ -65,8 +73,9 @@ public class WorldGenerator : MonoBehaviour
     public int seed = 1;
 
     public int distanceBetweenColony = 2;
+    public int attemptsAmountToAddAnyResourcesPerType = 5;
 
-    public float hexMinRadius = 1;
+    public float hexMinRadius = 1f;
 
     public float craterRiddling = 0.0001f;
     public float defaultRiddling = 0.001f;
@@ -98,6 +107,8 @@ public class WorldGenerator : MonoBehaviour
     private int chankSize;
     private int width;
     private int height;
+    private int cellColumns;
+    private int cellRows;
     private int colonyAmount;
 
 
@@ -178,7 +189,7 @@ public class WorldGenerator : MonoBehaviour
         {
             HexCell hexCell = worldAreaInfo.area[indices.x, indices.y];
             hexCell.hexType |= HexType.Building;
-            hexCell.indexInBuildingArray = buildingArray.Count;
+            hexCell.indexInBuildingArray = (short) buildingArray.Count;
             worldAreaInfo.area[indices.x, indices.y] = hexCell;
 
             buildingArray.Add(building);
@@ -441,25 +452,20 @@ public class WorldGenerator : MonoBehaviour
 
     private void InitLand()
     {
-        for (int x = 0; x < width; ++x)
-            for (int y = 0; y < height; ++y)
+        for (int x = 0; x < cellColumns; ++x)
+            for (int y = 0; y < cellRows; ++y)
             {
                 Vector2Int indices = new Vector2Int(x, y);
                 Vector3 centerPosition = GetHexPosition(indices);
 
-                HexCell hexCell;
+                HexCell hexCell = HexCell.Empty;
                 if (IsHexInsideMap(centerPosition))
-                    hexCell = new HexCell
-                    {
-                        hexType = HexType.Land
-                    };
-                else
-                    hexCell = new HexCell();
+                    hexCell.hexType = HexType.Land;
                 worldAreaInfo.area[x, y] = hexCell;
             }
     }
 
-    private void InitChankWithHexType(HexType hexType, int chankX, int chankY, Material currentMaterial, Camera currentCamera, bool isIncludeNoneType)
+    private void InitChankWithHexType(HexType hexType, int chankX, int chankY, Material currentMaterial, Camera currentCamera, bool isIncludeNoneType, ref bool isAdded)
     {
         int currentXOffset = chankX * chankSize;
         int currentYOffset = chankY * chankSize;
@@ -488,6 +494,8 @@ public class WorldGenerator : MonoBehaviour
                         }
                         else if ((isIncludeNoneType && hexCell.hexType == HexType.None) || hexCell.hexType == HexType.Land)
                         {
+                            isAdded |= true;
+
                             hexCell.hexType = hexType;
                             hexCell.resourceAmount += color.r;
 
@@ -498,24 +506,26 @@ public class WorldGenerator : MonoBehaviour
             }
     }
 
-    private void InitWorldAreaWithHexType(HexType hexType, float riddling, int areaSeed, Material currentMaterial, Camera currentCamera, bool isIncludeNoneType)
+    private void InitWorldAreaWithHexType(HexType hexType, float riddling, int areaSeed, Material currentMaterial, Camera currentCamera, bool isIncludeNoneType, ref bool isAdded)
     {
         currentMaterial.SetFloat("Vector1_Riddling", riddling);
         currentMaterial.SetFloat("Vector1_Seed", areaSeed);
 
         for (int chankX = 0; chankX < width / chankSize; ++chankX)
             for (int chankY = 0; chankY < height / chankSize; ++chankY)
-                InitChankWithHexType(hexType, chankX, chankY, currentMaterial, currentCamera, isIncludeNoneType);
+                InitChankWithHexType(hexType, chankX, chankY, currentMaterial, currentCamera, isIncludeNoneType, ref isAdded);
     }
 
     private void InitMountains(int mountainsSeed)
     {
-        InitWorldAreaWithHexType(HexType.Mountain, defaultRiddling, mountainsSeed, mountainMaterial, mountainsCamera, true);
+        bool isAdded = false;
+        InitWorldAreaWithHexType(HexType.Mountain, defaultRiddling, mountainsSeed, mountainMaterial, mountainsCamera, true, ref isAdded);
     }
 
     private void InitCraters(int cratersSeed)
     {
-        InitWorldAreaWithHexType(HexType.Crater, craterRiddling, cratersSeed, resourceMaterial, resourceCamera, true);
+        bool isAdded = false;
+        InitWorldAreaWithHexType(HexType.Crater, craterRiddling, cratersSeed, resourceMaterial, resourceCamera, true, ref isAdded);
     }
 
     private void InitResources(int resourcesSeed)
@@ -523,9 +533,18 @@ public class WorldGenerator : MonoBehaviour
         int resourceSeed = resourcesSeed;
         foreach (LimitedMinedResourceInfo resourceInfo in limitedMinedResourceInfoList.resourceInfos)
         {
-            InitWorldAreaWithHexType(GameResourceTypeToHexType(resourceInfo.gameResourceType),
-                resourceInfo.riddling, resourceSeed, resourceMaterial, resourceCamera, false);
-            ++resourceSeed;
+            bool isAdded = false;
+            float riddling = resourceInfo.riddling;
+            HexType hexType = GameResourceTypeToHexType(resourceInfo.gameResourceType);
+            for (int i = 0; i < attemptsAmountToAddAnyResourcesPerType && !isAdded; ++i)
+            {
+                InitWorldAreaWithHexType(hexType,
+                    riddling, resourceSeed, resourceMaterial, resourceCamera, false, ref isAdded);
+                riddling *= 2f;
+                ++resourceSeed;
+            }
+            if (!isAdded)
+                Debug.LogError(string.Format("Cannot add {0} resource. Increase resource riddling may fix the problem", hexType.ToString()));
         }
     }
 
@@ -545,12 +564,13 @@ public class WorldGenerator : MonoBehaviour
 
     private void AddColonyMainBases(List<Vector2Int> colonyIndices, int offsettedColoniesSeed)
     {
-        InitWorldAreaWithHexType(HexType.ColonyMainBase, mainBaseRiddling, offsettedColoniesSeed, resourceMaterial, resourceCamera, false);
+        bool isAdded = false;
+        InitWorldAreaWithHexType(HexType.ColonyMainBase, mainBaseRiddling, offsettedColoniesSeed, resourceMaterial, resourceCamera, false, ref isAdded);
 
         List<Vector2Int> allColonyIndices = new List<Vector2Int>();
 
-        for (int x = 0; x < width; ++x)
-            for (int y = 0; y < height; ++y)
+        for (int x = 0; x < cellColumns; ++x)
+            for (int y = 0; y < cellRows; ++y)
             {
                 HexCell hexCell = worldAreaInfo.area[x, y];
 
@@ -614,10 +634,8 @@ public class WorldGenerator : MonoBehaviour
 
         foreach (Vector2Int currentColony in colonyIndices)
         {
-            HexCell hexCell = new HexCell
-            {
-                hexType = HexType.ColonyMainBase
-            };
+            HexCell hexCell = HexCell.Empty;
+            hexCell.hexType = HexType.ColonyMainBase;
 
             worldAreaInfo.area[currentColony.x, currentColony.y] = hexCell;
         }
@@ -633,8 +651,8 @@ public class WorldGenerator : MonoBehaviour
             hexTypeToLimitedMinedResourceInfo[(int) hexType] = resourceInfo;
         }
 
-        for (int x = 0; x < width; ++x)
-            for (int y = 0; y < height; ++y)
+        for (int x = 0; x < cellColumns; ++x)
+            for (int y = 0; y < cellRows; ++y)
             {
                 HexCell hexCell = worldAreaInfo.area[x, y];
                 if (IsResourceOnlyType(hexCell.hexType))
@@ -657,7 +675,8 @@ public class WorldGenerator : MonoBehaviour
                         (limitedMinedResourceInfo.maxAmount - limitedMinedResourceInfo.minAmount);
                     resourceDepositScript.SetResourceType(gameResourceType, resourceAmount);
 
-                    hexCell.indexInResourceArray = resourceDepositArray.Count;
+                    hexCell.indexInResourceArray = (short) resourceDepositArray.Count;
+                    worldAreaInfo.area[x, y] = hexCell;
                     resourceDepositArray.Add(resourceDepositScript);
                 }
                 else if (hexCell.hexType == HexType.Mountain)
@@ -696,7 +715,7 @@ public class WorldGenerator : MonoBehaviour
     {
         worldAreaInfo = new WorldAreaInfo
         {
-            area = new HexCell[width, height]
+            area = new HexCell[cellColumns, cellRows]
         };
 
         InitLand();
@@ -743,8 +762,10 @@ public class WorldGenerator : MonoBehaviour
 
         width = mapSizeToWorldAreaSize(Mathf.RoundToInt(gameParameters.mapSize.width));
         height = mapSizeToWorldAreaSize(Mathf.RoundToInt(gameParameters.mapSize.height));
+        cellColumns = width / 4;
+        cellRows = Mathf.RoundToInt(height / 2f / sqrtOfThee);
 
-        int repeatOffset = (int) gameParameters.mapSize.height / chankSize / 2 + 1;
+        int repeatOffset = ((int) gameParameters.mapSize.height / chankSize / 2 + 1) * 2 + 1;
         planeMaterial.SetVector("Vector2_Offset", new Vector4(0f, planeYOffset * repeatOffset, 0f, 0f));
 
         offsetToCenter = new Vector3(width / 2f, 0f, height / 2f);
