@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class MainMenuLauncher : MonoBehaviour
 {
@@ -10,10 +11,15 @@ public class MainMenuLauncher : MonoBehaviour
         Application.Quit();
     }
 
+    public void StartGameScene()
+    {
+        SceneManager.LoadScene("GameScene");
+    }
+
 
     private void Start()
     {
-        Debug.Assert(menuManager, "Menu Manager doesn't set");
+        Utils.CheckFieldNotNullAndTryToSet(ref menuManager, "Menu Manager");
 
         menuManager.OpenMenu(Menu.MenuName.Main);
     }
