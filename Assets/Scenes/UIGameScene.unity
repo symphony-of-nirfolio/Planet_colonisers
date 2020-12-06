@@ -6141,6 +6141,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: MarketMenu
       objectReference: {fileID: 0}
+    - target: {fileID: 5611147879986558348, guid: e0ba8701188edc04b8d2a842f3cb5981, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5611147879986558349, guid: e0ba8701188edc04b8d2a842f3cb5981, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
