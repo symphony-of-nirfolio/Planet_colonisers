@@ -110,7 +110,7 @@ public class HexagonHighlighter : MonoBehaviour
 
     private void Update()
     {
-        if (!freezer.IsFullFreeze)
+        if (!freezer.IsInteractionFreeze)
         {
             if (Utils.IntersectionMouseRayWithXOZPlane(mainCamera, out Vector3 enter))
             {

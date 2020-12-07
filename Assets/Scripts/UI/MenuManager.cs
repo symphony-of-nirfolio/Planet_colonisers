@@ -69,6 +69,9 @@ public class MenuManager : MonoBehaviour
 
     private void Start()
     {
+        Debug.Assert(FindObjectsOfType<Menu>(true).Length == menus.Length,
+            "Not all menus added to menu list");
+
         bool[] used_menus = new bool[(int) Menu.MenuName.CountOf];
 
         foreach (Menu menu in menus)

@@ -9,6 +9,8 @@ public class GameMenuLauncher : MonoBehaviour
 
     public Builder builder;
 
+    public MarketMenu marketMenu;
+
 
     public void ExitToMainMenu()
     {
@@ -25,9 +27,10 @@ public class GameMenuLauncher : MonoBehaviour
 
     private void Start()
     {
-        Debug.Assert(freezer, "Freezer doesn't set");
-        Debug.Assert(menuManager, "Menu Manager doesn't set");
-        Debug.Assert(builder, "Builder doesn't set");
+        Utils.CheckFieldNotNullAndTryToSet(ref freezer, "Freezer");
+        Utils.CheckFieldNotNullAndTryToSet(ref menuManager, "Menu Manager");
+        Utils.CheckFieldNotNullAndTryToSet(ref builder, "Builder");
+        Utils.CheckFieldNotNullAndTryToSet(ref marketMenu, "Market Menu");
 
         menuManager.CloseAllMenus();
     }
@@ -42,6 +45,15 @@ public class GameMenuLauncher : MonoBehaviour
                 freezer.InteractionFreeze();
             }
         }
+        else if (Input.GetKeyDown(KeyCode.T))
+        {
+            if (!freezer.IsInteractionFreeze)
+            {
+                menuManager.OpenMenu(Menu.MenuName.Market);
+                marketMenu.SetMenuToOpen();
+                freezer.InteractionFreeze();
+            }
+        }
         else if (Input.GetKeyDown(KeyCode.Escape))
         {
             if (menuManager.IsOpenMenu(Menu.MenuName.Building))
@@ -49,6 +61,15 @@ public class GameMenuLauncher : MonoBehaviour
                 if (!freezer.IsFullFreeze)
                 {
                     menuManager.CloseMenu(Menu.MenuName.Building);
+                    freezer.InteractionUnfreeze();
+                }
+            }
+            else if (menuManager.IsOpenMenu(Menu.MenuName.Market))
+            {
+                if (!freezer.IsFullFreeze)
+                {
+                    menuManager.CloseMenu(Menu.MenuName.Market);
+                    marketMenu.SetMenuToClose();
                     freezer.InteractionUnfreeze();
                 }
             }
