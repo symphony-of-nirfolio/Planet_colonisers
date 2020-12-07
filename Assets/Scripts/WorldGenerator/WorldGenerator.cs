@@ -8,19 +8,22 @@ public class WorldGenerator : MonoBehaviour
     public enum HexType : ushort
     {
         None            = 0b_0000_0000_0000_0000,
-        Land            = 0b_0000_0000_0000_0001,
-        Crater          = 0b_0000_0000_0000_0010,
-        Mountain        = 0b_0000_0000_0000_0100,
-        Building        = 0b_0000_0000_0000_1000,
-        ColonyMainBase  = 0b_0000_0000_0001_0000,
 
-        Water           = 0b_0000_0000_0010_0000,
-        Metals          = 0b_0000_0000_0100_0000,
-        RareMetals      = 0b_0000_0000_1000_0000,
-        Dust            = 0b_0000_0001_0000_0000,
-        Radioactive     = 0b_0000_0010_0000_0000,
-        
-        AllResources    = Water | Metals | RareMetals | Dust | Radioactive
+        Water           = 0b_0000_0000_0000_0001,
+        Metals          = 0b_0000_0000_0000_0010,
+        RareMetals      = 0b_0000_0000_0000_0100,
+        Dust            = 0b_0000_0000_0000_1000,
+        Radioactive     = 0b_0000_0000_0001_0000,
+
+        Land            = 0b_0000_0000_0010_0000,
+        Crater          = 0b_0000_0000_0100_0000,
+        Mountain        = 0b_0000_0000_1000_0000,
+        Building        = 0b_0000_0001_0000_0000,
+        Road            = 0b_0000_0010_0000_0000,
+        ColonyMainBase  = 0b_0000_0100_0000_0000,
+
+        AllResources    = Water | Metals | RareMetals | Dust | Radioactive,
+        BuildingOrRoad  = Building | Road
     }
 
     public struct HexCell
@@ -28,6 +31,7 @@ public class WorldGenerator : MonoBehaviour
         public float resourceAmount;
         public short indexInResourceArray;
         public short indexInBuildingArray;
+        public short indexInRoadArray;
         public HexType hexType;
 
         public static HexCell Empty { get => new HexCell
@@ -35,6 +39,7 @@ public class WorldGenerator : MonoBehaviour
             resourceAmount = 0f,
             indexInResourceArray = -1,
             indexInBuildingArray = -1,
+            indexInRoadArray = -1,
             hexType = HexType.None
         }; }
     }
@@ -48,9 +53,34 @@ public class WorldGenerator : MonoBehaviour
     {
         public ResourceDeposit resourceDeposit = null;
         public GameObject building = null;
+        public GameObject road = null;
         public string shortDescription = "Unavailable cell";
         public HexType hexType = HexType.None;
     }
+
+    public class HexCellBuildingInfo
+    {
+        public HexType hexType = HexType.None;
+        public ResourceDeposit resourceDeposit = null;
+        public GameObject building = null;
+        public GameObject road = null;
+    }
+
+    public class HexCellsAround
+    {
+
+        public HexCellBuildingInfo centerCell = new HexCellBuildingInfo();
+        public HexCellBuildingInfo[] cellsAroud = new HexCellBuildingInfo[cellNeighbourAmount];
+    }
+
+    public class DoubleCircleOfHexCellsAround
+    {
+        public HexCellsAround firstCircle;
+        public HexCellsAround[] secondCircles = new HexCellsAround[cellNeighbourAmount];
+    }
+
+
+    public const int cellNeighbourAmount = 6;
 
 
     public GameParameters gameParameters;
@@ -84,12 +114,14 @@ public class WorldGenerator : MonoBehaviour
     public float planeYOffset = -0.2137f;
 
 
+    private const float maxPossibleResourceValuePerCell = 4f * 256f;
+    private const int mountainOffset = 1;
+    private const int craterOffset = 11;
+    private const int waterResourceOffset = 21;
+    private const int coloniesOffset = 31;
+
     private readonly float sqrtOfThee = Mathf.Sqrt(3);
-    private readonly float maxPossibleResourceValuePerCell = 4f * 256f;
-    private readonly int mountainOffset = 1;
-    private readonly int craterOffset = 11;
-    private readonly int waterResourceOffset = 21;
-    private readonly int coloniesOffset = 31;
+
 
     private RenderTexture renderTexture;
     private Material resourceMaterial;
@@ -99,6 +131,27 @@ public class WorldGenerator : MonoBehaviour
     private WorldAreaInfo worldAreaInfo;
     private readonly List<ResourceDeposit> resourceDepositArray = new List<ResourceDeposit>();
     private readonly List<GameObject> buildingArray = new List<GameObject>();
+    private readonly List<GameObject> roadArray = new List<GameObject>();
+
+    private static readonly Vector2Int[,] neighbourOffsets = new Vector2Int[,]
+    {
+        {
+            new Vector2Int(0, 1),
+            new Vector2Int(1, 0),
+            new Vector2Int(0, -1),
+            new Vector2Int(-1, -1),
+            new Vector2Int(-1, 0),
+            new Vector2Int(-1, 1)
+        },
+        {
+            new Vector2Int(1, 1),
+            new Vector2Int(1, 0),
+            new Vector2Int(1, -1),
+            new Vector2Int(0, -1),
+            new Vector2Int(-1, 0),
+            new Vector2Int(0, 1)
+        }
+    };
 
     private Vector3 offsetToCenter;
 
@@ -112,29 +165,101 @@ public class WorldGenerator : MonoBehaviour
     private int colonyAmount;
 
 
-    public Vector2Int GetHexIndices(Vector3 position)
-    {
-        float y = 2f / 3f * position.z / hexSideSize;
-        float x = (1f / sqrtOfThee * position.x - 1f / 3f * position.z) / hexSideSize;
-        Vector2 hex = HexRound(new Vector2(x, y));
-
-        int yHex = Mathf.RoundToInt(hex.y);
-        int xHex = Mathf.RoundToInt(hex.x) + yHex / 2;
-
-        return new Vector2Int(xHex, yHex);
-    }
-
-    public Vector3 GetHexPosition(Vector2Int indices)
-    {
-        float x = hexSideSize * (sqrtOfThee * (indices.x - indices.y / 2) + sqrtOfThee * 0.5f * indices.y);
-        float z = hexSideSize * (1.5f * indices.y);
-
-        return new Vector3(x, 0f, z) - offsetToCenter;
-    }
-
     public Vector3 GetHexCenterPosition(Vector3 position)
     {
         return GetHexPosition(GetHexIndices(position + offsetToCenter));
+    }
+
+    public static HexType GetResourceOnly(HexType hexType)
+    {
+        return hexType & HexType.AllResources;
+    }
+
+    public static bool IsResourceOnlyType(HexType hexType)
+    {
+        switch (hexType)
+        {
+            case HexType.Water:
+            case HexType.Metals:
+            case HexType.RareMetals:
+            case HexType.Dust:
+            case HexType.Radioactive:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    public static bool IsResourceType(HexType hexType)
+    {
+        HexType resourceOnly = GetResourceOnly(hexType);
+
+        return IsResourceOnlyType(resourceOnly);
+    }
+
+    public static bool IsContainDuildingOrRoad(HexType hexType)
+    {
+        return (hexType & HexType.BuildingOrRoad) != HexType.None;
+    }
+
+    public static HexType GetBuildingAndRoadOnly(HexType hexType)
+    {
+        return hexType & HexType.BuildingOrRoad;
+    }
+
+    public static HexType RemoveBuildingAndRoad(HexType hexType)
+    {
+        return hexType & ~HexType.BuildingOrRoad;
+    }
+
+    public static GameResourceType HexTypeToGameResourceType(HexType hexType)
+    {
+        switch (hexType)
+        {
+            case HexType.Water:
+                return GameResourceType.Water;
+            case HexType.Metals:
+                return GameResourceType.Metals;
+            case HexType.RareMetals:
+                return GameResourceType.RareMetals;
+            case HexType.Dust:
+                return GameResourceType.Dust;
+            case HexType.Radioactive:
+                return GameResourceType.Radioactive;
+            default:
+                Debug.LogWarning("Unresolved hex type");
+                return GameResourceType.Dust;
+        }
+    }
+
+    public static HexType GameResourceTypeToHexType(GameResourceType gameResourceType)
+    {
+        switch (gameResourceType)
+        {
+            case GameResourceType.Water:
+                return HexType.Water;
+            case GameResourceType.Metals:
+                return HexType.Metals;
+            case GameResourceType.RareMetals:
+                return HexType.RareMetals;
+            case GameResourceType.Dust:
+                return HexType.Dust;
+            case GameResourceType.Radioactive:
+                return HexType.Radioactive;
+            default:
+                Debug.LogWarning("Unresolved game resource type");
+                return HexType.None;
+        }
+    }
+
+    public HexType GetHexType(Vector3 position)
+    {
+        Vector2Int indices = GetHexIndices(position + offsetToCenter);
+
+        if (IsValidHexIndices(indices))
+            return worldAreaInfo.area[indices.x, indices.y].hexType;
+        else
+            return HexType.None;
     }
 
     public bool IsHexNone(Vector3 position)
@@ -167,7 +292,17 @@ public class WorldGenerator : MonoBehaviour
             return false;
     }
 
-    public bool IsHexAvailableForBuilding(Vector3 position)
+    public bool IsHexContainDuildingOrRoad(Vector3 position)
+    {
+        Vector2Int indices = GetHexIndices(position + offsetToCenter);
+
+        if (IsValidHexIndices(indices))
+            return IsContainDuildingOrRoad(worldAreaInfo.area[indices.x, indices.y].hexType);
+        else
+            return false;
+    }
+
+    public bool IsHexAvailableForBuildingAndRoad(Vector3 position)
     {
         Vector2Int indices = GetHexIndices(position + offsetToCenter);
 
@@ -179,6 +314,16 @@ public class WorldGenerator : MonoBehaviour
         }
         else
             return false;
+    }
+
+    public bool IsHexAvailableForBuilding(Vector3 position)
+    {
+        return IsHexAvailableForBuildingAndRoad(position);
+    }
+
+    public bool IsHexAvailableForRoad(Vector3 position)
+    {
+        return IsHexAvailableForBuildingAndRoad(position);
     }
 
     public void AddBuildingToHexCell(Vector3 position, GameObject building)
@@ -198,6 +343,23 @@ public class WorldGenerator : MonoBehaviour
             Debug.LogError("Hex cell unavalible for building");
     }
 
+    public void AddRoadToHexCell(Vector3 position, GameObject road)
+    {
+        Vector2Int indices = GetHexIndices(position + offsetToCenter);
+
+        if (IsHexAvailableForRoad(position))
+        {
+            HexCell hexCell = worldAreaInfo.area[indices.x, indices.y];
+            hexCell.hexType |= HexType.Road;
+            hexCell.indexInRoadArray = (short) roadArray.Count;
+            worldAreaInfo.area[indices.x, indices.y] = hexCell;
+
+            roadArray.Add(road);
+        }
+        else
+            Debug.LogError("Hex cell unavalible for road");
+    }
+
     public GameObject GetBuilding(Vector3 position)
     {
         Vector2Int indices = GetHexIndices(position + offsetToCenter);
@@ -213,6 +375,26 @@ public class WorldGenerator : MonoBehaviour
             }
             else
                 return buildingArray[buildingIndex];
+        }
+        else
+            return null;
+    }
+
+    public GameObject GetRoad(Vector3 position)
+    {
+        Vector2Int indices = GetHexIndices(position + offsetToCenter);
+
+        if (IsValidHexIndices(indices))
+        {
+            int roadIndex = worldAreaInfo.area[indices.x, indices.y].indexInRoadArray;
+
+            if (roadIndex == -1)
+            {
+                Debug.LogError("Current hex cell doesn\'t contain road");
+                return null;
+            }
+            else
+                return roadArray[roadIndex];
         }
         else
             return null;
@@ -285,17 +467,65 @@ public class WorldGenerator : MonoBehaviour
                 else
                     Debug.LogError("Building index is -1");
             }
+            else if ((hexCellInfo.hexType & HexType.Road) == HexType.Road)
+            {
+                int roadIndex = worldAreaInfo.area[indices.x, indices.y].indexInRoadArray;
+
+                if (roadIndex != -1)
+                    hexCellInfo.road = roadArray[roadIndex];
+                else
+                    Debug.LogError("Road index is -1");
+            }
         }
 
         return hexCellInfo;
     }
 
-    private Vector2 CubeToAxial(Vector3 cube)
+    public DoubleCircleOfHexCellsAround GetDoubleCircleOfHexCellsAround(Vector3 position)
+    {
+        Vector2Int indices = GetHexIndices(position + offsetToCenter);
+
+        DoubleCircleOfHexCellsAround doubleCircleOfHexCellsAround = EmptyDoubleCircleOfHexCellsAround();
+
+        if (IsValidHexIndices(indices))
+        {
+            doubleCircleOfHexCellsAround.firstCircle = GetHexCellsAround(indices);
+
+            Vector2Int[] hexNeighbourIndices = GetHexNeighbourIndices(indices);
+            for (int i = 0; i < cellNeighbourAmount; ++i)
+                doubleCircleOfHexCellsAround.secondCircles[i] = GetHexCellsAround(hexNeighbourIndices[i]);
+        }
+
+        return doubleCircleOfHexCellsAround;
+    }
+
+
+    private Vector2Int GetHexIndices(Vector3 position)
+    {
+        float y = 2f / 3f * position.z / hexSideSize;
+        float x = (1f / sqrtOfThee * position.x - 1f / 3f * position.z) / hexSideSize;
+        Vector2 hex = HexRound(new Vector2(x, y));
+
+        int yHex = Mathf.RoundToInt(hex.y);
+        int xHex = Mathf.RoundToInt(hex.x) + yHex / 2;
+
+        return new Vector2Int(xHex, yHex);
+    }
+
+    private Vector3 GetHexPosition(Vector2Int indices)
+    {
+        float x = hexSideSize * (sqrtOfThee * (indices.x - indices.y / 2) + sqrtOfThee * 0.5f * indices.y);
+        float z = hexSideSize * (1.5f * indices.y);
+
+        return new Vector3(x, 0f, z) - offsetToCenter;
+    }
+
+    private static Vector2 CubeToAxial(Vector3 cube)
     {
         return new Vector2(cube.x, cube.z);
     }
 
-    private Vector3 AxialToCube(Vector2 axial)
+    private static Vector3 AxialToCube(Vector2 axial)
     {
         float x = axial.x;
         float z = axial.y;
@@ -303,7 +533,7 @@ public class WorldGenerator : MonoBehaviour
         return new Vector3(x, y, z);
     }
 
-    private Vector3 CubeRound(Vector3 cube)
+    private static Vector3 CubeRound(Vector3 cube)
     {
         float roundX = Mathf.Round(cube.x);
         float roundY = Mathf.Round(cube.y);
@@ -323,7 +553,7 @@ public class WorldGenerator : MonoBehaviour
         return new Vector3(roundX, roundY, roundZ);
     }
 
-    private Vector2 HexRound(Vector2 hex)
+    private static Vector2 HexRound(Vector2 hex)
     {
         return CubeToAxial(CubeRound(AxialToCube(hex)));
     }
@@ -336,71 +566,85 @@ public class WorldGenerator : MonoBehaviour
             indices.y < worldAreaInfo.area.GetLength(1);
     }
 
-    private HexType GetResourceOnly(HexType hexType)
+    private static HexCellsAround EmptyHexCellsAround()
     {
-        return hexType & HexType.AllResources;
+        HexCellsAround hexCellsAround = new HexCellsAround();
+        for (int i = 0; i < cellNeighbourAmount; ++i)
+            hexCellsAround.cellsAroud[i] = new HexCellBuildingInfo();
+        return hexCellsAround;
     }
 
-    private bool IsResourceOnlyType(HexType hexType)
+    private static DoubleCircleOfHexCellsAround EmptyDoubleCircleOfHexCellsAround()
     {
-        switch (hexType)
+        DoubleCircleOfHexCellsAround doubleCircleOfHexCellsAround = new DoubleCircleOfHexCellsAround
         {
-            case HexType.Water:
-            case HexType.Metals:
-            case HexType.RareMetals:
-            case HexType.Dust:
-            case HexType.Radioactive:
-                return true;
-            default:
-                return false;
-        }
+            firstCircle = EmptyHexCellsAround()
+        };
+
+        for (int i = 0; i < cellNeighbourAmount; ++i)
+            doubleCircleOfHexCellsAround.secondCircles[i] = EmptyHexCellsAround();
+        return doubleCircleOfHexCellsAround;
     }
 
-    private bool IsResourceType(HexType hexType)
+    private static Vector2Int[] GetHexNeighbourIndices(Vector2Int indices)
     {
-        HexType resourceOnly = GetResourceOnly(hexType);
-
-        return IsResourceOnlyType(resourceOnly);
+        int parity = indices.y & 1;
+        Vector2Int[] neighbourIndices = new Vector2Int[cellNeighbourAmount];
+        for (int i = 0; i < cellNeighbourAmount; ++i)
+            neighbourIndices[i] = indices + neighbourOffsets[parity, i];
+        return neighbourIndices;
     }
 
-    private GameResourceType HexTypeToGameResourceType(HexType hexType)
+    private HexCellBuildingInfo GetHexCellBuildingInfo(Vector2Int indices)
     {
-        switch (hexType)
+        HexCellBuildingInfo hexCellBuildingInfo = new HexCellBuildingInfo();
+
+        if (IsValidHexIndices(indices))
         {
-            case HexType.Water:
-                return GameResourceType.Water;
-            case HexType.Metals:
-                return GameResourceType.Metals;
-            case HexType.RareMetals:
-                return GameResourceType.RareMetals;
-            case HexType.Dust:
-                return GameResourceType.Dust;
-            case HexType.Radioactive:
-                return GameResourceType.Radioactive;
-            default:
-                Debug.LogWarning("Unresolved hex type");
-                return GameResourceType.Dust;
+            HexCell hexCell = worldAreaInfo.area[indices.x, indices.y];
+            hexCellBuildingInfo.hexType = hexCell.hexType;
+
+            if (IsResourceType(hexCell.hexType))
+            {
+                int resourceIndex = worldAreaInfo.area[indices.x, indices.y].indexInResourceArray;
+                if (resourceIndex != -1)
+                    hexCellBuildingInfo.resourceDeposit = resourceDepositArray[resourceIndex];
+                else
+                    Debug.LogError("Resource index is -1");
+            }
+
+            if ((hexCell.hexType & HexType.Building) == HexType.Building)
+            {
+                int buildingIndex = worldAreaInfo.area[indices.x, indices.y].indexInBuildingArray;
+
+                if (buildingIndex != -1)
+                    hexCellBuildingInfo.building = buildingArray[buildingIndex];
+                else
+                    Debug.LogError("Building index is -1");
+            }
+            else if ((hexCell.hexType & HexType.Road) == HexType.Road)
+            {
+                int roadIndex = worldAreaInfo.area[indices.x, indices.y].indexInRoadArray;
+
+                if (roadIndex != -1)
+                    hexCellBuildingInfo.road = roadArray[roadIndex];
+                else
+                    Debug.LogError("Road index is -1");
+            }
         }
+
+        return hexCellBuildingInfo;
     }
 
-    private HexType GameResourceTypeToHexType(GameResourceType gameResourceType)
+    private HexCellsAround GetHexCellsAround(Vector2Int indices)
     {
-        switch (gameResourceType)
-        {
-            case GameResourceType.Water:
-                return HexType.Water;
-            case GameResourceType.Metals:
-                return HexType.Metals;
-            case GameResourceType.RareMetals:
-                return HexType.RareMetals;
-            case GameResourceType.Dust:
-                return HexType.Dust;
-            case GameResourceType.Radioactive:
-                return HexType.Radioactive;
-            default:
-                Debug.LogWarning("Unresolved game resource type");
-                return HexType.None;
-        }
+        HexCellsAround hexCellsAround = new HexCellsAround();
+        hexCellsAround.centerCell = GetHexCellBuildingInfo(indices);
+
+        Vector2Int[] hexNeighbourIndices = GetHexNeighbourIndices(indices);
+        for (int i = 0; i < cellNeighbourAmount; ++i)
+            hexCellsAround.cellsAroud[i] = GetHexCellBuildingInfo(hexNeighbourIndices[i]);
+        return hexCellsAround;
     }
 
     private Color32[] TakeResourceSnapshot(int xOffset, int yOffset, Material currentMaterial, Camera currentCamera)
