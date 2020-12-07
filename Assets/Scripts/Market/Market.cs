@@ -89,4 +89,9 @@ public class Market : MonoBehaviour
         tradeMutex.ReleaseMutex();
         return isSuccessfullTrade;
     }
+
+    public bool IsTradeAvailable()
+    {
+        return !needsToRefresh;
+    }
 }

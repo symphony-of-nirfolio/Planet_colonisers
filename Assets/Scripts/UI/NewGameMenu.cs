@@ -1,12 +1,12 @@
 ﻿using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class NewGameMenu : MonoBehaviour
 {
     public Camera mainCamera;
+    public MainMenuLauncher mainMenuLauncher;
 
     public ColonyTypeList colonyTypeList;
     public MapSizeList mapSizeList;
@@ -46,7 +46,7 @@ public class NewGameMenu : MonoBehaviour
         gameParametersLoader.colonyAmount = currentColonyAmount;
         gameParametersLoader.planetInfo = currentPlanetInfo;
 
-        SceneManager.LoadScene("GameScene");
+        mainMenuLauncher.StartGameScene();
     }
 
     public void SetColonyType(int index)
@@ -156,17 +156,18 @@ public class NewGameMenu : MonoBehaviour
 
     private void Awake()
     {
-        Debug.Assert(mainCamera, "Main Camera doesn't set");
-        Debug.Assert(colonyTypeList, "Colony Type List doesn't set");
-        Debug.Assert(mapSizeList, "Map Info List doesn't set");
-        Debug.Assert(planetInfoList, "Planet Info List doesn't set");
-        Debug.Assert(smallPlanetRectanglePrefab, "Small Planet Rectangle Prefab doesn't set");
-        Debug.Assert(smallPlanetPrefab, "Small Planet Prefab doesn't set");
-        Debug.Assert(smallPlanetsRectTransform, "Small Planets Rect Transform doesn't set");
-        Debug.Assert(colonyTypeDropdown, "Colony Type Dropdown doesn't set");
-        Debug.Assert(mapSizeDropdown, "Map Size Dropdown doesn't set");
-        Debug.Assert(colonyAmountSlider, "Colony Amount Slider doesn't set");
-        Debug.Assert(colonyAmountSliderValueText, "Colony Amount Slider Value Text doesn't set");
+        Utils.CheckMainCameraNotNullAndTryToSet(ref mainCamera);
+        Utils.CheckFieldNotNullAndTryToSet(ref mainMenuLauncher, "Main Menu Launcher");
+        Utils.CheckFieldNotNull(colonyTypeList, "Colony Type List");
+        Utils.CheckFieldNotNull(mapSizeList, "Map Info List");
+        Utils.CheckFieldNotNull(planetInfoList, "Planet Info List");
+        Utils.CheckFieldNotNull(smallPlanetRectanglePrefab, "Small Planet Rectangle Prefab");
+        Utils.CheckFieldNotNull(smallPlanetPrefab, "Small Planet Prefab");
+        Utils.CheckFieldNotNull(smallPlanetsRectTransform, "Small Planets Rect Transform");
+        Utils.CheckFieldNotNull(colonyTypeDropdown, "Colony Type Dropdown");
+        Utils.CheckFieldNotNull(mapSizeDropdown, "Map Size Dropdown");
+        Utils.CheckFieldNotNull(colonyAmountSlider, "Colony Amount Slider");
+        Utils.CheckFieldNotNull(colonyAmountSliderValueText, "Colony Amount Slider Value Text");
 
         smallPlanetRectangles = new GameObject[planetInfoList.planetInfos.Length];
         

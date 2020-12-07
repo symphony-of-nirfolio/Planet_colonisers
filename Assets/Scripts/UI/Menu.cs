@@ -11,6 +11,7 @@ public class Menu : MonoBehaviour
         ExitWithoutSaving,
         Singleplayer,
         SingleplayerNewGame,
+        Market,
         None,
         CountOf
     }
