@@ -26,7 +26,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 697280433931816756}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -3, y: 0.001, z: -1.544}
+  m_LocalPosition: {x: -3, y: 0.0005, z: -1.544}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 5802457723012504394}
@@ -59,7 +59,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 0ec92a499223d3c40abc70041d042f1b, type: 2}
+  - {fileID: 2100000, guid: 9a0020818c925d54d9ce4e5e6f79f1de, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -91,6 +91,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5802457723012504394}
   - component: {fileID: 8507673331802342849}
+  - component: {fileID: -8027701461465895926}
   m_Layer: 0
   m_Name: UsualRoad
   m_TagString: Untagged
@@ -127,3 +128,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   singleRoadPrefab: {fileID: 8468164269923321351, guid: c48283ba71d48fb4c94c05ba232908e5, type: 3}
   currnetRoadDirection: 0
+--- !u!114 &-8027701461465895926
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5802457723012504393}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7f8c6fbac57ab964da19cd706b7d3a1f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  currentRenderer: {fileID: 6662551026547253365}

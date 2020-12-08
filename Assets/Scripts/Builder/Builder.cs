@@ -78,7 +78,46 @@ public class Builder : MonoBehaviour
                 resourceExtractor.SetDeposit(resourceDeposit);
             }
 
-            worldGenerator.AddBuildingToHexCell(position, building);
+            bool isRoad = building.TryGetComponent(out RoadUpdater roadUpdater);
+
+            if (isRoad)
+            {
+                worldGenerator.AddRoadToHexCell(position, building);
+            }
+            else
+            {
+                worldGenerator.AddBuildingToHexCell(position, building);
+            }
+
+            WorldGenerator.DoubleCircleOfHexCellsAround doubleCircleOfHexCellsAround =
+                worldGenerator.GetDoubleCircleOfHexCellsAround(position);
+
+            if (isRoad)
+            {
+                roadUpdater.UpdateRoad(doubleCircleOfHexCellsAround.firstCircle);
+            }
+            for (int i = 0; i < WorldGenerator.cellNeighbourAmount; ++i)
+            {
+                WorldGenerator.HexCellsAround hexCellsAround = doubleCircleOfHexCellsAround.secondCircles[i];
+                if ((hexCellsAround.centerCell.hexType & WorldGenerator.HexType.Road) == WorldGenerator.HexType.Road)
+                {
+                    if (hexCellsAround.centerCell.road)
+                    {
+                        if (hexCellsAround.centerCell.road.TryGetComponent(out RoadUpdater currentRoadUpdater))
+                        {
+                            currentRoadUpdater.UpdateRoad(hexCellsAround);
+                        }
+                        else
+                        {
+                            Debug.LogError("Game object doesn't contain road updater");
+                        }
+                    }
+                    else
+                    {
+                        Debug.LogError("Road game object is empty");
+                    }
+                }
+            }
         }
     }
 
@@ -123,8 +162,6 @@ public class Builder : MonoBehaviour
         if (!freezer.IsInteractionFreeze &&
             Utils.IntersectionMouseRayWithXOZPlane(mainCamera, out Vector3 enter))
         {
-            bool isValidPlace = true;
-
             if (!currentBuilding)
             {
                 UpdateCurrentBuilding();
@@ -135,7 +172,7 @@ public class Builder : MonoBehaviour
                 Vector3 hexCenter = worldGenerator.GetHexCenterPosition(enter);
                 bool isHexContainsResource = worldGenerator.IsHexContainsResource(enter);
 
-                isValidPlace = worldGenerator.IsHexAvailableForBuilding(enter);
+                bool isValidPlace = worldGenerator.IsHexAvailableForBuilding(enter);
                 isValidPlace &= isCurrentBuildResourceExtractor == isHexContainsResource;
 
                 currentBuilding.transform.position = hexCenter + Vector3.up * preViewOffset;

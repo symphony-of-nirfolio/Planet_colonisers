@@ -64,6 +64,25 @@ public class RoadUpdater : MonoBehaviour
         currnetRoadDirection = newRoadDirection;
     }
 
+    public void UpdateRoad(WorldGenerator.HexCellsAround hexCellsAround)
+    {
+        RoadDirection roadDirection = RoadDirection.None;
+
+        for (int i = 0; i < (int) RoadDirectionIndex.CountOf; ++i)
+        {
+            if (WorldGenerator.IsContainDuildingOrRoad(hexCellsAround.cellsAroud[i].hexType))
+            {
+                roadDirection |= IndexToRoadDirection((RoadDirectionIndex) i);
+            }
+        }
+
+        if (roadDirection == RoadDirection.None)
+        {
+            roadDirection = RoadDirection.Default;
+        }
+
+        UpdateRoad(roadDirection);
+    }
 
     private RoadDirectionIndex RoadDirectionToIndex(RoadDirection roadDirection)
     {
@@ -111,6 +130,6 @@ public class RoadUpdater : MonoBehaviour
     {
         Utils.CheckFieldNotNull(singleRoadPrefab, "Single Road Prefab");
 
-        UpdateRoad(RoadDirection.TopRight | RoadDirection.Right | RoadDirection.BottomRight | RoadDirection.BottomLeft | RoadDirection.Left | RoadDirection.TopLeft);
+        UpdateRoad(RoadDirection.Default);
     }
 }
