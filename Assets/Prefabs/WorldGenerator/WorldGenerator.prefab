@@ -330,6 +330,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3146374057374408735}
   - component: {fileID: 3146374057374408728}
+  - component: {fileID: 8096949531905927395}
   m_Layer: 0
   m_Name: WorldGenerator
   m_TagString: Untagged
@@ -371,11 +372,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gameParameters: {fileID: 0}
   mainCamera: {fileID: 0}
+  worldMap: {fileID: 8096949531905927395}
   limitedMinedResourceInfoList: {fileID: 11400000, guid: 18b2b2f1926038d41a8ed5d7c2fd7b90, type: 2}
   resourceCamera: {fileID: 3146374055875139817}
   resourceRenderer: {fileID: 5998861883385313922}
   mountainsCamera: {fileID: 7495149507721590709}
   mountainsRenderer: {fileID: 780174426958205473}
+  planeRenderer: {fileID: 0}
   mountainsTransform: {fileID: 3682062217066127918}
   cratersTransform: {fileID: 754801552837879528}
   resourcesTransform: {fileID: 3146374056008892663}
@@ -386,10 +389,31 @@ MonoBehaviour:
   mainBaseLocationPrefab: {fileID: 5802457723012504393, guid: 1f3cb936f54711040be73835be09885f, type: 3}
   seed: 1
   distanceBetweenColony: 15
+  attemptsAmountToAddAnyResourcesPerType: 5
   hexMinRadius: 2
   craterRiddling: 0.0003
   defaultRiddling: 0.001
   mainBaseRiddling: 0.0003
+  planeYOffset: -0.2137
+--- !u!114 &8096949531905927395
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3146374057374408729}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fbf44940e49d8d647aaaf966fde2d227, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gameParameters: {fileID: 0}
+  resourceCamera: {fileID: 3146374055875139817}
+  hexMinRadius: 2
+  width: 0
+  height: 0
+  cellColumns: 0
+  cellRows: 0
 --- !u!1 &3146374057513845098
 GameObject:
   m_ObjectHideFlags: 0

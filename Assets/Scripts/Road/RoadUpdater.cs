@@ -64,13 +64,13 @@ public class RoadUpdater : MonoBehaviour
         currnetRoadDirection = newRoadDirection;
     }
 
-    public void UpdateRoad(WorldGenerator.HexCellsAround hexCellsAround)
+    public void UpdateRoad(WorldMap.HexCellsAround hexCellsAround)
     {
         RoadDirection roadDirection = RoadDirection.None;
 
         for (int i = 0; i < (int) RoadDirectionIndex.CountOf; ++i)
         {
-            if (WorldGenerator.IsContainDuildingOrRoad(hexCellsAround.cellsAroud[i].hexType))
+            if (WorldMap.IsContainBuildingOrRoad(hexCellsAround.cellsAroud[i].hexType))
             {
                 roadDirection |= IndexToRoadDirection((RoadDirectionIndex) i);
             }
