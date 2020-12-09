@@ -324,10 +324,14 @@ public class WorldGenerator : MonoBehaviour
                 }
                 else if (hexCell.hexType == WorldMap.HexType.ColonyMainBase)
                 {
-                    Instantiate(mainBaseLocationPrefab,
+                    GameObject mainBaseLocation = Instantiate(mainBaseLocationPrefab,
                         worldMap.GetHexPosition(new Vector2Int(x, y)),
                         Quaternion.identity,
                         mainBaseLocationsTransform);
+
+                    hexCell.indexInColonyMainBaseArray = (short) worldMap.colonyMainBaseArray.Count;
+                    worldMap.worldAreaInfo.area[x, y] = hexCell;
+                    worldMap.colonyMainBaseArray.Add(mainBaseLocation);
                 }
             }
     }

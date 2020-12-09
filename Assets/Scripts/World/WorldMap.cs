@@ -30,6 +30,7 @@ public class WorldMap : MonoBehaviour
     {
         public float resourceAmount;
         public short indexInResourceArray;
+        public short indexInColonyMainBaseArray;
         public short indexInBuildingArray;
         public short indexInRoadArray;
         public HexType hexType;
@@ -40,6 +41,7 @@ public class WorldMap : MonoBehaviour
             {
                 resourceAmount = 0f,
                 indexInResourceArray = -1,
+                indexInColonyMainBaseArray = -1,
                 indexInBuildingArray = -1,
                 indexInRoadArray = -1,
                 hexType = HexType.None
@@ -55,24 +57,18 @@ public class WorldMap : MonoBehaviour
     public class HexCellInfo
     {
         public ResourceDeposit resourceDeposit = null;
+        public GameObject colonyMainBase = null;
         public GameObject building = null;
         public GameObject road = null;
+        public Vector3 position = Vector3.zero;
         public string shortDescription = "Unavailable cell";
         public HexType hexType = HexType.None;
     }
 
-    public class HexCellBuildingInfo
-    {
-        public HexType hexType = HexType.None;
-        public ResourceDeposit resourceDeposit = null;
-        public GameObject building = null;
-        public GameObject road = null;
-    }
-
     public class HexCellsAround
     {
-        public HexCellBuildingInfo centerCell = new HexCellBuildingInfo();
-        public HexCellBuildingInfo[] cellsAroud = new HexCellBuildingInfo[cellNeighbourAmount];
+        public HexCellInfo centerCell = new HexCellInfo();
+        public HexCellInfo[] cellsAroud = new HexCellInfo[cellNeighbourAmount];
     }
 
     public class DoubleCircleOfHexCellsAround
@@ -94,6 +90,8 @@ public class WorldMap : MonoBehaviour
     public WorldAreaInfo worldAreaInfo;
     [HideInInspector]
     public readonly List<ResourceDeposit> resourceDepositArray = new List<ResourceDeposit>();
+    [HideInInspector]
+    public readonly List<GameObject> colonyMainBaseArray = new List<GameObject>();
 
     [HideInInspector]
     public int width;
@@ -408,55 +406,31 @@ public class WorldMap : MonoBehaviour
             return null;
     }
 
+    public GameObject GetColonyMainBase(Vector3 position)
+    {
+        Vector2Int indices = GetHexIndices(position + offsetToCenter);
+
+        if (IsValidHexIndices(indices))
+        {
+            int indexInColonyMainBaseArray = worldAreaInfo.area[indices.x, indices.y].indexInColonyMainBaseArray;
+
+            if (indexInColonyMainBaseArray == -1)
+            {
+                Debug.LogError("Current hex cell doesn\'t contain colony main base array");
+                return null;
+            }
+            else
+                return colonyMainBaseArray[indexInColonyMainBaseArray];
+        }
+        else
+            return null;
+    }
+
     public HexCellInfo GetHexCellInfo(Vector3 position)
     {
         Vector2Int indices = GetHexIndices(position + offsetToCenter);
 
-        HexCellInfo hexCellInfo = new HexCellInfo();
-
-        if (IsValidHexIndices(indices))
-        {
-            HexCell hexCell = worldAreaInfo.area[indices.x, indices.y];
-            hexCellInfo.hexType = hexCell.hexType;
-
-            if (IsResourceType(hexCell.hexType))
-            {
-                hexCellInfo.shortDescription = "Cell with limited mined resource";
-
-                int resourceIndex = worldAreaInfo.area[indices.x, indices.y].indexInResourceArray;
-                if (resourceIndex != -1)
-                    hexCellInfo.resourceDeposit = resourceDepositArray[resourceIndex];
-                else
-                    Debug.LogError("Resource index is -1");
-            }
-            else if ((hexCell.hexType & HexType.Land) == HexType.Land)
-                hexCellInfo.shortDescription = "Free cell";
-            else if (hexCell.hexType == HexType.Crater)
-                hexCellInfo.shortDescription = "Unavailable cell with crater";
-            else if (hexCell.hexType == HexType.Mountain)
-                hexCellInfo.shortDescription = "Unavailable cell with mountain";
-
-            if ((hexCellInfo.hexType & HexType.Building) == HexType.Building)
-            {
-                int buildingIndex = worldAreaInfo.area[indices.x, indices.y].indexInBuildingArray;
-
-                if (buildingIndex != -1)
-                    hexCellInfo.building = buildingArray[buildingIndex];
-                else
-                    Debug.LogError("Building index is -1");
-            }
-            else if ((hexCellInfo.hexType & HexType.Road) == HexType.Road)
-            {
-                int roadIndex = worldAreaInfo.area[indices.x, indices.y].indexInRoadArray;
-
-                if (roadIndex != -1)
-                    hexCellInfo.road = roadArray[roadIndex];
-                else
-                    Debug.LogError("Road index is -1");
-            }
-        }
-
-        return hexCellInfo;
+        return GetHexCellInfo(indices);
     }
 
     public DoubleCircleOfHexCellsAround GetDoubleCircleOfHexCellsAround(Vector3 position)
@@ -469,12 +443,52 @@ public class WorldMap : MonoBehaviour
         {
             doubleCircleOfHexCellsAround.firstCircle = GetHexCellsAround(indices);
 
-            Vector2Int[] hexNeighbourIndices = GetHexNeighbourIndices(indices);
+            Vector2Int[] hexNeighbourIndices = GetHexNeighboursIndices(indices);
             for (int i = 0; i < cellNeighbourAmount; ++i)
                 doubleCircleOfHexCellsAround.secondCircles[i] = GetHexCellsAround(hexNeighbourIndices[i]);
         }
 
         return doubleCircleOfHexCellsAround;
+    }
+
+    public Vector3[] GetHexRing(Vector3 position, int radius)
+    {
+        return GetHexRings(position, radius, radius);
+    }
+
+    public Vector3[] GetHexRings(Vector3 position, int minRadius, int maxRadius)
+    {
+        Vector2Int indices = GetHexIndices(position + offsetToCenter);
+
+        Vector2Int[] ringIndices = GetHexIndicesRings(indices, minRadius, maxRadius);
+
+        List<Vector3> result = new List<Vector3>();
+
+        foreach (Vector2Int ring in ringIndices)
+            if (IsValidHexIndices(ring))
+                result.Add(GetHexPosition(ring));
+
+        return result.ToArray();
+    }
+
+    public HexCellInfo[] GetHexInfoRings(Vector3 position, int minRadius, int maxRadius)
+    {
+        Vector2Int indices = GetHexIndices(position + offsetToCenter);
+
+        Vector2Int[] ringIndices = GetHexIndicesRings(indices, minRadius, maxRadius);
+
+        List<HexCellInfo> result = new List<HexCellInfo>();
+
+        foreach (Vector2Int ring in ringIndices)
+            if (IsValidHexIndices(ring))
+                result.Add(GetHexCellInfo(ring));
+
+        return result.ToArray();
+    }
+
+    public int Distance(Vector3 begin, Vector3 end)
+    {
+        return Distance(GetHexIndices(begin + offsetToCenter), GetHexIndices(end + offsetToCenter));
     }
 
     public Vector2Int GetHexIndices(Vector3 position)
@@ -549,6 +563,21 @@ public class WorldMap : MonoBehaviour
         return CubeToAxial(CubeRound(AxialToCube(hex)));
     }
 
+    private static Vector2Int CubeToOffset(Vector3Int cube)
+    {
+        int x = cube.x + (cube.z - (cube.z & 1)) / 2;
+        int y = cube.z;
+        return new Vector2Int(x, y);
+    }
+
+    private static Vector3Int OffsetToCube(Vector2Int hex)
+    {
+        int x = hex.x - (hex.y - (hex.y & 1)) / 2;
+        int z = hex.y;
+        int y = -x - z;
+        return new Vector3Int(x, y, z);
+    }
+
     public bool IsValidHexIndices(Vector2Int indices)
     {
         return indices.x >= 0 &&
@@ -561,7 +590,7 @@ public class WorldMap : MonoBehaviour
     {
         HexCellsAround hexCellsAround = new HexCellsAround();
         for (int i = 0; i < cellNeighbourAmount; ++i)
-            hexCellsAround.cellsAroud[i] = new HexCellBuildingInfo();
+            hexCellsAround.cellsAroud[i] = new HexCellInfo();
         return hexCellsAround;
     }
 
@@ -577,7 +606,7 @@ public class WorldMap : MonoBehaviour
         return doubleCircleOfHexCellsAround;
     }
 
-    private static Vector2Int[] GetHexNeighbourIndices(Vector2Int indices)
+    private static Vector2Int[] GetHexNeighboursIndices(Vector2Int indices)
     {
         int parity = indices.y & 1;
         Vector2Int[] neighbourIndices = new Vector2Int[cellNeighbourAmount];
@@ -586,58 +615,141 @@ public class WorldMap : MonoBehaviour
         return neighbourIndices;
     }
 
-    private HexCellBuildingInfo GetHexCellBuildingInfo(Vector2Int indices)
+    private static Vector2Int GetHexNeighbourIndices(Vector2Int indices, int neighbourId)
     {
-        HexCellBuildingInfo hexCellBuildingInfo = new HexCellBuildingInfo();
+        if (neighbourId < 0 || neighbourId >= cellNeighbourAmount)
+        {
+            Debug.LogError("Wrong neighbour id");
+            return Vector2Int.zero;
+        }
+
+        int parity = indices.y & 1;
+        return indices + neighbourOffsets[parity, neighbourId];
+    }
+
+    private HexCellInfo GetHexCellInfo(Vector2Int indices)
+    {
+        HexCellInfo hexCellInfo = new HexCellInfo();
 
         if (IsValidHexIndices(indices))
         {
             HexCell hexCell = worldAreaInfo.area[indices.x, indices.y];
-            hexCellBuildingInfo.hexType = hexCell.hexType;
+            hexCellInfo.hexType = hexCell.hexType;
+            hexCellInfo.position = GetHexPosition(indices);
 
             if (IsResourceType(hexCell.hexType))
             {
+                hexCellInfo.shortDescription = "Cell with limited mined resource";
+
                 int resourceIndex = worldAreaInfo.area[indices.x, indices.y].indexInResourceArray;
                 if (resourceIndex != -1)
-                    hexCellBuildingInfo.resourceDeposit = resourceDepositArray[resourceIndex];
+                    hexCellInfo.resourceDeposit = resourceDepositArray[resourceIndex];
                 else
                     Debug.LogError("Resource index is -1");
             }
+            else if ((hexCell.hexType & HexType.Land) == HexType.Land)
+                hexCellInfo.shortDescription = "Free cell";
+            else if (hexCell.hexType == HexType.Crater)
+                hexCellInfo.shortDescription = "Unavailable cell with crater";
+            else if (hexCell.hexType == HexType.Mountain)
+                hexCellInfo.shortDescription = "Unavailable cell with mountain";
 
-            if ((hexCell.hexType & HexType.Building) == HexType.Building)
+            if ((hexCellInfo.hexType & HexType.Building) == HexType.Building)
             {
                 int buildingIndex = worldAreaInfo.area[indices.x, indices.y].indexInBuildingArray;
 
                 if (buildingIndex != -1)
-                    hexCellBuildingInfo.building = buildingArray[buildingIndex];
+                    hexCellInfo.building = buildingArray[buildingIndex];
                 else
                     Debug.LogError("Building index is -1");
             }
-            else if ((hexCell.hexType & HexType.Road) == HexType.Road)
+            else if ((hexCellInfo.hexType & HexType.Road) == HexType.Road)
             {
                 int roadIndex = worldAreaInfo.area[indices.x, indices.y].indexInRoadArray;
 
                 if (roadIndex != -1)
-                    hexCellBuildingInfo.road = roadArray[roadIndex];
+                    hexCellInfo.road = roadArray[roadIndex];
                 else
                     Debug.LogError("Road index is -1");
             }
+            else if (hexCellInfo.hexType == HexType.ColonyMainBase)
+            {
+                int indexInColonyMainBaseArray = worldAreaInfo.area[indices.x, indices.y].indexInColonyMainBaseArray;
+
+                if (indexInColonyMainBaseArray != -1)
+                    hexCellInfo.colonyMainBase = colonyMainBaseArray[indexInColonyMainBaseArray];
+                else
+                    Debug.LogError("Colony main base index is -1");
+            }
         }
 
-        return hexCellBuildingInfo;
+        return hexCellInfo;
     }
 
     private HexCellsAround GetHexCellsAround(Vector2Int indices)
     {
         HexCellsAround hexCellsAround = new HexCellsAround
         {
-            centerCell = GetHexCellBuildingInfo(indices)
+            centerCell = GetHexCellInfo(indices)
         };
 
-        Vector2Int[] hexNeighbourIndices = GetHexNeighbourIndices(indices);
+        Vector2Int[] hexNeighbourIndices = GetHexNeighboursIndices(indices);
         for (int i = 0; i < cellNeighbourAmount; ++i)
-            hexCellsAround.cellsAroud[i] = GetHexCellBuildingInfo(hexNeighbourIndices[i]);
+            hexCellsAround.cellsAroud[i] = GetHexCellInfo(hexNeighbourIndices[i]);
         return hexCellsAround;
+    }
+
+    private static Vector2Int[] GetHexIndicesRing(Vector2Int indices, int radius)
+    {
+        if (radius <= 0)
+            return new Vector2Int[] { indices };
+
+        Vector3Int cube = OffsetToCube(indices);
+        Vector3Int currentCube = cube;
+        currentCube.x -= radius;
+
+        Vector2Int[] result = new Vector2Int[cellNeighbourAmount * radius];
+
+        for (int i = 0; i < cellNeighbourAmount; ++i)
+            for (int j = 0; j < radius; ++j)
+            {
+                Vector2Int offset = CubeToOffset(currentCube);
+                result[i * radius + j] = offset;
+                currentCube = OffsetToCube(GetHexNeighbourIndices(offset, i));
+            }
+
+        return result;
+    }
+
+    private static Vector2Int[] GetHexIndicesRings(Vector2Int indices, int minRadius, int maxRadius)
+    {
+        if (minRadius < 0 || maxRadius < minRadius)
+            Debug.LogWarning("Wrong min and max raduis");
+
+        Vector2Int[] rings = new Vector2Int[0];
+
+        for (int radius = minRadius; radius <= maxRadius; ++radius)
+        {
+            Vector2Int[] newRing = GetHexIndicesRing(indices, radius);
+
+            Vector2Int[] expandedRings = new Vector2Int[rings.Length + newRing.Length];
+            rings.CopyTo(expandedRings, 0);
+            newRing.CopyTo(expandedRings, rings.Length);
+
+            rings = expandedRings;
+        }
+
+        return rings;
+    }
+
+    private static int Distance(Vector2Int begin, Vector2Int end)
+    {
+        Vector3Int beginCube = OffsetToCube(begin);
+        Vector3Int endCube = OffsetToCube(end);
+
+        return Mathf.Max(Mathf.Abs(beginCube.x - endCube.x),
+            Mathf.Abs(beginCube.y - endCube.y),
+            Mathf.Abs(beginCube.x - endCube.x));
     }
 
     private bool IsInsideMap(Vector3 position)
