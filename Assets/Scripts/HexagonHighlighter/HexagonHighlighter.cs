@@ -31,7 +31,8 @@ public class HexagonHighlighter : MonoBehaviour
     private Vector3 previousMousePosition = Vector3.zero;
     private float holdingTime = 0f;
     private bool isShowingInfo = false;
-
+    private ColonyTeritory colonyTeritoryUnderMouse = null;
+    private bool isOverMainBase = false;
 
     private bool IsValideMouseInput()
     {
@@ -121,11 +122,28 @@ public class HexagonHighlighter : MonoBehaviour
 
                 bool isHexContainsLand = worldMap.IsHexContainsLand(enter);
                 bool isHexContainsResource = worldMap.IsHexContainsResource(enter);
+                bool isHexMainBase = worldMap.GetHexType(enter) == WorldMap.HexType.ColonyMainBase;
+
+                if ((isOverMainBase && !isHexMainBase) || (!isOverMainBase && isHexMainBase))
+                {
+                    if (isOverMainBase && !isHexMainBase)
+                    {
+                        colonyTeritoryUnderMouse.Unhighlight();
+                        colonyTeritoryUnderMouse = null;
+                        isOverMainBase = false;
+                    }
+                    else
+                    {
+                        colonyTeritoryUnderMouse = worldMap.GetColonyMainBase(enter).GetComponent<ColonyTeritory>();
+                        colonyTeritoryUnderMouse.Highlight();
+                        isOverMainBase = true;
+                    }
+                }
 
                 Color hexColor;
                 if (isHexContainsLand)
                     hexColor = emptyHexColor;
-                else if (isHexContainsResource)
+                else if (isHexContainsResource || isHexMainBase)
                     hexColor = resourceHexColor;
                 else
                     hexColor = noneHexColor;
