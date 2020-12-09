@@ -92,6 +92,10 @@ public class WorldMap : MonoBehaviour
     public readonly List<ResourceDeposit> resourceDepositArray = new List<ResourceDeposit>();
     [HideInInspector]
     public readonly List<GameObject> colonyMainBaseArray = new List<GameObject>();
+    [HideInInspector]
+    public readonly List<Vector2Int> resourceDepositIndicesArray = new List<Vector2Int>();
+    [HideInInspector]
+    public readonly List<Vector2Int> colonyMainBaseIndicesArray = new List<Vector2Int>();
 
     [HideInInspector]
     public int width;
@@ -105,6 +109,10 @@ public class WorldMap : MonoBehaviour
     private readonly float sqrtOfThee = Mathf.Sqrt(3);
     private readonly List<GameObject> buildingArray = new List<GameObject>();
     private readonly List<GameObject> roadArray = new List<GameObject>();
+
+    private readonly List<Vector2Int> buildingIndicesArray = new List<Vector2Int>();
+    private readonly List<Vector2Int> roadIndicesArray = new List<Vector2Int>();
+
 
     private static readonly Vector2Int[,] neighbourOffsets = new Vector2Int[,]
     {
@@ -314,6 +322,7 @@ public class WorldMap : MonoBehaviour
             worldAreaInfo.area[indices.x, indices.y] = hexCell;
 
             buildingArray.Add(building);
+            buildingIndicesArray.Add(indices);
         }
         else
             Debug.LogError("Hex cell unavalible for building");
@@ -331,6 +340,7 @@ public class WorldMap : MonoBehaviour
             worldAreaInfo.area[indices.x, indices.y] = hexCell;
 
             roadArray.Add(road);
+            roadIndicesArray.Add(indices);
         }
         else
             Debug.LogError("Hex cell unavalible for road");
@@ -424,6 +434,26 @@ public class WorldMap : MonoBehaviour
         }
         else
             return null;
+    }
+
+    public Vector3 GetPositoinByBuilding(GameObject building)
+    {
+        return GetHexPosition(GetIndicesByBuilding(building));
+    }
+    
+    public Vector3 GetPositoinByRoad(GameObject road)
+    {
+        return GetHexPosition(GetIndicesByRoad(road));
+    }
+
+    public Vector3 GetPositoinByColonyMainBase(GameObject colonyMainBase)
+    {
+        return GetHexPosition(GetIndicesByColonyMainBase(colonyMainBase));
+    }
+
+    public Vector3 GetPositoinByResourceDeposit(ResourceDeposit resourceDeposit)
+    {
+        return GetHexPosition(GetIndicesByResourceDeposit(resourceDeposit));
     }
 
     public HexCellInfo GetHexCellInfo(Vector3 position)
@@ -625,6 +655,62 @@ public class WorldMap : MonoBehaviour
 
         int parity = indices.y & 1;
         return indices + neighbourOffsets[parity, neighbourId];
+    }
+
+    private Vector2Int GetIndicesByBuilding(GameObject building)
+    {
+        if (buildingArray.Contains(building))
+        {
+            int index = buildingArray.FindIndex(x => x == building);
+            return buildingIndicesArray[index];
+        }
+        else
+        {
+            Debug.LogError("Current building isn't contains in array");
+            return Vector2Int.zero;
+        }
+    }
+
+    private Vector2Int GetIndicesByRoad(GameObject road)
+    {
+        if (roadArray.Contains(road))
+        {
+            int index = roadArray.FindIndex(x => x == road);
+            return roadIndicesArray[index];
+        }
+        else
+        {
+            Debug.LogError("Current road isn't contains in array");
+            return Vector2Int.zero;
+        }
+    }
+
+    private Vector2Int GetIndicesByColonyMainBase(GameObject colonyMainBase)
+    {
+        if (colonyMainBaseArray.Contains(colonyMainBase))
+        {
+            int index = colonyMainBaseArray.FindIndex(x => x == colonyMainBase);
+            return colonyMainBaseIndicesArray[index];
+        }
+        else
+        {
+            Debug.LogError("Current colony main base isn't contains in array");
+            return Vector2Int.zero;
+        }
+    }
+    
+    private Vector2Int GetIndicesByResourceDeposit(ResourceDeposit resourceDeposit)
+    {
+        if (resourceDepositArray.Contains(resourceDeposit))
+        {
+            int index = resourceDepositArray.FindIndex(x => x == resourceDeposit);
+            return resourceDepositIndicesArray[index];
+        }
+        else
+        {
+            Debug.LogError("Current resource deposit isn't contains in array");
+            return Vector2Int.zero;
+        }
     }
 
     private HexCellInfo GetHexCellInfo(Vector2Int indices)

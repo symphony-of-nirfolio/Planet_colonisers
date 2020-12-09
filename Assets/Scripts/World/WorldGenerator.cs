@@ -299,6 +299,7 @@ public class WorldGenerator : MonoBehaviour
                     hexCell.indexInResourceArray = (short) worldMap.resourceDepositArray.Count;
                     worldMap.worldAreaInfo.area[x, y] = hexCell;
                     worldMap.resourceDepositArray.Add(resourceDepositScript);
+                    worldMap.resourceDepositIndicesArray.Add(new Vector2Int(x, y));
                 }
                 else if (hexCell.hexType == WorldMap.HexType.Mountain)
                 {
@@ -332,6 +333,7 @@ public class WorldGenerator : MonoBehaviour
                     hexCell.indexInColonyMainBaseArray = (short) worldMap.colonyMainBaseArray.Count;
                     worldMap.worldAreaInfo.area[x, y] = hexCell;
                     worldMap.colonyMainBaseArray.Add(mainBaseLocation);
+                    worldMap.colonyMainBaseIndicesArray.Add(new Vector2Int(x, y));
                 }
             }
     }
