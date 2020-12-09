@@ -4578,6 +4578,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8096949531905927395, guid: 86cf3883be741d94890e267154165a0a, type: 3}
+      propertyPath: gameParameters
+      value: 
+      objectReference: {fileID: 1341836452}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 86cf3883be741d94890e267154165a0a, type: 3}
 --- !u!114 &1581249449 stripped
@@ -5742,6 +5746,7 @@ MonoBehaviour:
   freezer: {fileID: 433637733}
   menuManager: {fileID: 700507348}
   builder: {fileID: 1292014376}
+  marketMenu: {fileID: 0}
 --- !u!4 &2136498926
 Transform:
   m_ObjectHideFlags: 0

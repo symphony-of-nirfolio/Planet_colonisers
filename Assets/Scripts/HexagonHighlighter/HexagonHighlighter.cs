@@ -61,7 +61,7 @@ public class HexagonHighlighter : MonoBehaviour
                 {
                     isShowingInfo = true;
 
-                    hexCellInfoMenu.Show(worldGenerator.GetHexCellInfo(enter));
+                    hexCellInfoMenu.Show(worldGenerator.worldMap.GetHexCellInfo(enter));
                 }
             }
             else
@@ -116,11 +116,11 @@ public class HexagonHighlighter : MonoBehaviour
             {
                 highlighter.SetActive(true);
 
-                Vector3 hexCenter = worldGenerator.GetHexCenterPosition(enter);
+                Vector3 hexCenter = worldGenerator.worldMap.GetHexCenterPosition(enter);
                 HandlingMouseInput(enter);
 
-                bool isHexContainsLand = worldGenerator.IsHexContainsLand(enter);
-                bool isHexContainsResource = worldGenerator.IsHexContainsResource(enter);
+                bool isHexContainsLand = worldGenerator.worldMap.IsHexContainsLand(enter);
+                bool isHexContainsResource = worldGenerator.worldMap.IsHexContainsResource(enter);
 
                 Color hexColor;
                 if (isHexContainsLand)

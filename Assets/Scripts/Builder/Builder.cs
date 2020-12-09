@@ -71,7 +71,7 @@ public class Builder : MonoBehaviour
 
             if (isCurrentBuildResourceExtractor)
             {
-                ResourceDeposit resourceDeposit = worldGenerator.GetResourceDeposit(position);
+                ResourceDeposit resourceDeposit = worldGenerator.worldMap.GetResourceDeposit(position);
                 Debug.Assert(resourceDeposit, "Resource Deposit is null");
 
                 ResourceExtractor resourceExtractor = building.GetComponent<ResourceExtractor>();
@@ -82,24 +82,24 @@ public class Builder : MonoBehaviour
 
             if (isRoad)
             {
-                worldGenerator.AddRoadToHexCell(position, building);
+                worldGenerator.worldMap.AddRoadToHexCell(position, building);
             }
             else
             {
-                worldGenerator.AddBuildingToHexCell(position, building);
+                worldGenerator.worldMap.AddBuildingToHexCell(position, building);
             }
 
-            WorldGenerator.DoubleCircleOfHexCellsAround doubleCircleOfHexCellsAround =
-                worldGenerator.GetDoubleCircleOfHexCellsAround(position);
+            WorldMap.DoubleCircleOfHexCellsAround doubleCircleOfHexCellsAround =
+                worldGenerator.worldMap.GetDoubleCircleOfHexCellsAround(position);
 
             if (isRoad)
             {
                 roadUpdater.UpdateRoad(doubleCircleOfHexCellsAround.firstCircle);
             }
-            for (int i = 0; i < WorldGenerator.cellNeighbourAmount; ++i)
+            for (int i = 0; i < WorldMap.cellNeighbourAmount; ++i)
             {
-                WorldGenerator.HexCellsAround hexCellsAround = doubleCircleOfHexCellsAround.secondCircles[i];
-                if ((hexCellsAround.centerCell.hexType & WorldGenerator.HexType.Road) == WorldGenerator.HexType.Road)
+                WorldMap.HexCellsAround hexCellsAround = doubleCircleOfHexCellsAround.secondCircles[i];
+                if ((hexCellsAround.centerCell.hexType & WorldMap.HexType.Road) == WorldMap.HexType.Road)
                 {
                     if (hexCellsAround.centerCell.road)
                     {
@@ -169,10 +169,10 @@ public class Builder : MonoBehaviour
 
             if (currentBuilding)
             {
-                Vector3 hexCenter = worldGenerator.GetHexCenterPosition(enter);
-                bool isHexContainsResource = worldGenerator.IsHexContainsResource(enter);
+                Vector3 hexCenter = worldGenerator.worldMap.GetHexCenterPosition(enter);
+                bool isHexContainsResource = worldGenerator.worldMap.IsHexContainsResource(enter);
 
-                bool isValidPlace = worldGenerator.IsHexAvailableForBuilding(enter);
+                bool isValidPlace = worldGenerator.worldMap.IsHexAvailableForBuilding(enter);
                 isValidPlace &= isCurrentBuildResourceExtractor == isHexContainsResource;
 
                 currentBuilding.transform.position = hexCenter + Vector3.up * preViewOffset;
