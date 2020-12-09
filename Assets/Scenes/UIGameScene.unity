@@ -3297,6 +3297,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8096949531905927395, guid: 86cf3883be741d94890e267154165a0a, type: 3}
+      propertyPath: gameParameters
+      value: 
+      objectReference: {fileID: 1828656292}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 86cf3883be741d94890e267154165a0a, type: 3}
 --- !u!114 &1063369299 stripped
@@ -3308,6 +3312,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1ba78ddf929228745ba948446e7f6c15, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1063369300 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8096949531905927395, guid: 86cf3883be741d94890e267154165a0a, type: 3}
+  m_PrefabInstance: {fileID: 1063369298}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fbf44940e49d8d647aaaf966fde2d227, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1001 &1093538650
@@ -4638,6 +4653,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 593734114}
     - target: {fileID: 5031850218424351887, guid: a061a556c2ed54b4ab990f4ed77da70f, type: 3}
+      propertyPath: worldMap
+      value: 
+      objectReference: {fileID: 1063369300}
+    - target: {fileID: 5031850218424351887, guid: a061a556c2ed54b4ab990f4ed77da70f, type: 3}
       propertyPath: mainCamera
       value: 
       objectReference: {fileID: 523178580}
@@ -5378,7 +5397,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   freezer: {fileID: 593734114}
   mainCamera: {fileID: 523178580}
-  worldGenerator: {fileID: 1063369299}
+  worldMap: {fileID: 1063369300}
   buildingsTransform: {fileID: 62682812}
   validPositionColor: {r: 0.019017458, g: 1, b: 0, a: 1}
   invalidPositionColor: {r: 1, g: 0, b: 0, a: 1}

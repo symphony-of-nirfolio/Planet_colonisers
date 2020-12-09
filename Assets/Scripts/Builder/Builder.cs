@@ -5,7 +5,7 @@ public class Builder : MonoBehaviour
 {
     public Freezer freezer;
     public Camera mainCamera;
-    public WorldGenerator worldGenerator;
+    public WorldMap worldMap;
 
     public Transform buildingsTransform;
 
@@ -71,7 +71,7 @@ public class Builder : MonoBehaviour
 
             if (isCurrentBuildResourceExtractor)
             {
-                ResourceDeposit resourceDeposit = worldGenerator.worldMap.GetResourceDeposit(position);
+                ResourceDeposit resourceDeposit = worldMap.GetResourceDeposit(position);
                 Debug.Assert(resourceDeposit, "Resource Deposit is null");
 
                 ResourceExtractor resourceExtractor = building.GetComponent<ResourceExtractor>();
@@ -82,15 +82,15 @@ public class Builder : MonoBehaviour
 
             if (isRoad)
             {
-                worldGenerator.worldMap.AddRoadToHexCell(position, building);
+                worldMap.AddRoadToHexCell(position, building);
             }
             else
             {
-                worldGenerator.worldMap.AddBuildingToHexCell(position, building);
+                worldMap.AddBuildingToHexCell(position, building);
             }
 
             WorldMap.DoubleCircleOfHexCellsAround doubleCircleOfHexCellsAround =
-                worldGenerator.worldMap.GetDoubleCircleOfHexCellsAround(position);
+                worldMap.GetDoubleCircleOfHexCellsAround(position);
 
             if (isRoad)
             {
@@ -134,10 +134,10 @@ public class Builder : MonoBehaviour
             Debug.LogError("Main Camera doesn't set");
             mainCamera = Camera.main;
         }
-        if (!worldGenerator)
+        if (!worldMap)
         {
-            Debug.LogError("World Generator doesn't set");
-            worldGenerator = FindObjectOfType<WorldGenerator>();
+            Debug.LogError("World map doesn't set");
+            worldMap = FindObjectOfType<WorldMap>();
         }
 
         if (!buildingsTransform)
@@ -169,10 +169,10 @@ public class Builder : MonoBehaviour
 
             if (currentBuilding)
             {
-                Vector3 hexCenter = worldGenerator.worldMap.GetHexCenterPosition(enter);
-                bool isHexContainsResource = worldGenerator.worldMap.IsHexContainsResource(enter);
+                Vector3 hexCenter = worldMap.GetHexCenterPosition(enter);
+                bool isHexContainsResource = worldMap.IsHexContainsResource(enter);
 
-                bool isValidPlace = worldGenerator.worldMap.IsHexAvailableForBuilding(enter);
+                bool isValidPlace = worldMap.IsHexAvailableForBuilding(enter);
                 isValidPlace &= isCurrentBuildResourceExtractor == isHexContainsResource;
 
                 currentBuilding.transform.position = hexCenter + Vector3.up * preViewOffset;

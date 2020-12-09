@@ -6,7 +6,7 @@ public class HexagonHighlighter : MonoBehaviour
     public GameParameters gameParameters;
     public Freezer freezer;
     public Camera mainCamera;
-    public WorldGenerator worldGenerator;
+    public WorldMap worldMap;
     public HexCellInfoMenu hexCellInfoMenu;
 
     public GameObject highlighter;
@@ -61,7 +61,7 @@ public class HexagonHighlighter : MonoBehaviour
                 {
                     isShowingInfo = true;
 
-                    hexCellInfoMenu.Show(worldGenerator.worldMap.GetHexCellInfo(enter));
+                    hexCellInfoMenu.Show(worldMap.GetHexCellInfo(enter));
                 }
             }
             else
@@ -101,7 +101,7 @@ public class HexagonHighlighter : MonoBehaviour
 
         Debug.Assert(gameParameters, "Game Parameters doesn't set");
         Debug.Assert(mainCamera, "Game Parameters doesn't set");
-        Debug.Assert(worldGenerator, "World Generator doesn't set");
+        Debug.Assert(worldMap, "World Generator doesn't set");
         Debug.Assert(highlighter, "Highlighter doesn't set");
         Debug.Assert(currentRenderer, "Current Renderer doesn't set");
 
@@ -116,11 +116,11 @@ public class HexagonHighlighter : MonoBehaviour
             {
                 highlighter.SetActive(true);
 
-                Vector3 hexCenter = worldGenerator.worldMap.GetHexCenterPosition(enter);
+                Vector3 hexCenter = worldMap.GetHexCenterPosition(enter);
                 HandlingMouseInput(enter);
 
-                bool isHexContainsLand = worldGenerator.worldMap.IsHexContainsLand(enter);
-                bool isHexContainsResource = worldGenerator.worldMap.IsHexContainsResource(enter);
+                bool isHexContainsLand = worldMap.IsHexContainsLand(enter);
+                bool isHexContainsResource = worldMap.IsHexContainsResource(enter);
 
                 Color hexColor;
                 if (isHexContainsLand)
