@@ -6,6 +6,7 @@ public class WorldGenerator : MonoBehaviour
     public GameParameters gameParameters;
     public Camera mainCamera;
     public WorldMap worldMap;
+    public Freezer freezer;
     public CameraMovement cameraMovement;
 
     public LimitedMinedResourceInfoList limitedMinedResourceInfoList;
@@ -43,6 +44,7 @@ public class WorldGenerator : MonoBehaviour
     private const int craterOffset = 11;
     private const int waterResourceOffset = 21;
     private const int coloniesOffset = 31;
+    private const int aIForNPCOffset = 41;
 
 
     private RenderTexture renderTexture;
@@ -264,7 +266,7 @@ public class WorldGenerator : MonoBehaviour
         }
     }
 
-    private void SetResourcePrefabs()
+    private void SetResourcePrefabs(int aIForNPCSeed)
     {
         LimitedMinedResourceInfo[] hexTypeToLimitedMinedResourceInfo = new LimitedMinedResourceInfo[(int) WorldMap.HexType.AllResources];
 
@@ -273,6 +275,8 @@ public class WorldGenerator : MonoBehaviour
             WorldMap.HexType hexType = WorldMap.GameResourceTypeToHexType(resourceInfo.gameResourceType);
             hexTypeToLimitedMinedResourceInfo[(int) hexType] = resourceInfo;
         }
+
+        int currentAIForNPCOffset = aIForNPCSeed;
 
         for (int x = 0; x < cellColumns; ++x)
             for (int y = 0; y < cellRows; ++y)
@@ -334,7 +338,20 @@ public class WorldGenerator : MonoBehaviour
 
                     ColonyTeritory colonyTeritory = mainBaseLocation.GetComponent<ColonyTeritory>();
                     Vector3[] positions = worldMap.GetHexRings(worldMap.GetHexPosition(new Vector2Int(x, y)), 1, colonyRaduis);
-                    colonyTeritory.InitAvailableHexes(new List<Vector3>(positions), worldMap.colonyMainBaseArray.Count == 0);
+                    bool isPlayer = worldMap.colonyMainBaseArray.Count == 0;
+                    colonyTeritory.InitAvailableHexes(new List<Vector3>(positions), isPlayer);
+
+                    if (!isPlayer)
+                    {
+                        AIForNPC aIForNPC = mainBaseLocation.GetComponent<AIForNPC>();
+                        aIForNPC.worldMap = worldMap;
+                        aIForNPC.freezer = freezer;
+                        aIForNPC.colonyRaduis = colonyRaduis;
+                        aIForNPC.seed = currentAIForNPCOffset;
+                        aIForNPC.enabled = true;
+
+                        ++currentAIForNPCOffset;
+                    }
 
                     hexCell.indexInColonyMainBaseArray = (short) worldMap.colonyMainBaseArray.Count;
                     worldMap.worldAreaInfo.area[x, y] = hexCell;
@@ -356,7 +373,7 @@ public class WorldGenerator : MonoBehaviour
 
         InitColonyMainBases(seed + coloniesOffset);
 
-        SetResourcePrefabs();
+        SetResourcePrefabs(seed + aIForNPCOffset);
 
         cameraMovement.playerMainBasePosition = worldMap.GetPositoinByColonyMainBase(worldMap.colonyMainBaseArray[0]);
         cameraMovement.SetCameraViewToMainBase();
@@ -368,6 +385,7 @@ public class WorldGenerator : MonoBehaviour
         Utils.CheckFieldNotNullAndTryToSet(ref gameParameters, "Game Parameters");
         Utils.CheckMainCameraNotNullAndTryToSet(ref mainCamera);
         Utils.CheckFieldNotNullAndTryToSet(ref worldMap, "World map");
+        Utils.CheckFieldNotNullAndTryToSet(ref freezer, "Freezer");
         Utils.CheckFieldNotNullAndTryToSet(ref cameraMovement, "Camera Movement");
         Utils.CheckFieldNotNull(limitedMinedResourceInfoList, "Limited Mined Resource Info List");
         Utils.CheckFieldNotNull(resourceCamera, "Resource Camera");
