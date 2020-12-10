@@ -849,7 +849,7 @@ public class WorldMap : MonoBehaviour
     }
 
 
-    private void Awake()
+    private void Start()
     {
         Utils.CheckFieldNotNullAndTryToSet(ref gameParameters, "Game Parameters doesn't set");
         Utils.CheckFieldNotNull(resourceCamera, "Resource Camera doesn't set");
