@@ -835,7 +835,7 @@ public class WorldMap : MonoBehaviour
 
         return Mathf.Max(Mathf.Abs(beginCube.x - endCube.x),
             Mathf.Abs(beginCube.y - endCube.y),
-            Mathf.Abs(beginCube.x - endCube.x));
+            Mathf.Abs(beginCube.z - endCube.z));
     }
 
     private bool IsInsideMap(Vector3 position)
