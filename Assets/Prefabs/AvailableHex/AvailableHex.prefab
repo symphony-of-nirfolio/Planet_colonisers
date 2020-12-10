@@ -126,7 +126,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   currentRenderer: {fileID: 6662551026547253365}
-  playerBase: {r: 1, g: 1, b: 1, a: 0.3}
-  playerHighlight: {r: 1, g: 1, b: 1, a: 0.8}
-  npcBase: {r: 1, g: 0.3066038, b: 0.62607425, a: 0.3}
-  npcHighlight: {r: 1, g: 0.30588236, b: 0.627451, a: 0.7372549}
+  playerBase: {r: 1, g: 0.5801887, b: 0.6723946, a: 0.31764707}
+  playerHighlight: {r: 1, g: 0.5803922, b: 0.67058825, a: 0.49411765}
+  npcBase: {r: 0.89100915, g: 0.8820755, b: 1, a: 0.3}
+  npcHighlight: {r: 0.6809362, g: 0.65881985, b: 0.990566, a: 0.50980395}
