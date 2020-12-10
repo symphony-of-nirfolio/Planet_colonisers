@@ -13,6 +13,7 @@ public class Builder : MonoBehaviour
     public Color invalidPositionColor;
 
     public float preViewOffset = 0.01f;
+    public int colonyRaduis = 6;
 
     private GameObject currentBuildingPrefab = null;
     private GameObject currentBuilding = null;
@@ -174,6 +175,7 @@ public class Builder : MonoBehaviour
 
                 bool isValidPlace = worldMap.IsHexAvailableForBuilding(enter);
                 isValidPlace &= isCurrentBuildResourceExtractor == isHexContainsResource;
+                isValidPlace &= worldMap.Distance(worldMap.GetPositoinByColonyMainBase(worldMap.colonyMainBaseArray[0]), hexCenter) <= colonyRaduis;
 
                 currentBuilding.transform.position = hexCenter + Vector3.up * preViewOffset;
                 currentBuildHelper.SetMaterialColor(isValidPlace ? validPositionColor : invalidPositionColor);
