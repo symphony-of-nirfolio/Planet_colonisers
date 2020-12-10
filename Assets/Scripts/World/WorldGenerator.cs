@@ -25,6 +25,7 @@ public class WorldGenerator : MonoBehaviour
     public int seed = 1;
 
     public int distanceBetweenColony = 2;
+    public int colonyRaduis = 6;
     public int attemptsAmountToAddAnyResourcesPerType = 5;
 
     public float hexMinRadius = 1f;
@@ -329,6 +330,10 @@ public class WorldGenerator : MonoBehaviour
                         worldMap.GetHexPosition(new Vector2Int(x, y)),
                         Quaternion.identity,
                         mainBaseLocationsTransform);
+
+                    ColonyTeritory colonyTeritory = mainBaseLocation.GetComponent<ColonyTeritory>();
+                    Vector3[] positions = worldMap.GetHexRings(worldMap.GetHexPosition(new Vector2Int(x, y)), 1, colonyRaduis);
+                    colonyTeritory.InitAvailableHexes(new List<Vector3>(positions), worldMap.colonyMainBaseArray.Count == 0);
 
                     hexCell.indexInColonyMainBaseArray = (short) worldMap.colonyMainBaseArray.Count;
                     worldMap.worldAreaInfo.area[x, y] = hexCell;

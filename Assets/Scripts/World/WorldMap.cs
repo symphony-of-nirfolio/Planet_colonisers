@@ -495,7 +495,7 @@ public class WorldMap : MonoBehaviour
         List<Vector3> result = new List<Vector3>();
 
         foreach (Vector2Int ring in ringIndices)
-            if (IsValidHexIndices(ring))
+            if (IsValidHexIndices(ring) && (worldAreaInfo.area[ring.x, ring.y].hexType & HexType.Land) == HexType.Land)
                 result.Add(GetHexPosition(ring));
 
         return result.ToArray();
