@@ -1754,6 +1754,10 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 3146374057374408728, guid: 86cf3883be741d94890e267154165a0a, type: 3}
+      propertyPath: freezer
+      value: 
+      objectReference: {fileID: 1455036428}
+    - target: {fileID: 3146374057374408728, guid: 86cf3883be741d94890e267154165a0a, type: 3}
       propertyPath: mainCamera
       value: 
       objectReference: {fileID: 920385387}
