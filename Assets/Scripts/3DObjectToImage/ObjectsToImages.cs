@@ -25,6 +25,12 @@ public class ObjectsToImages : MonoBehaviour
 
             SnapshotCamera snapshotCamera =
                 gameObjectToBuildingItems[i].gameObject.GetComponent<SnapshotCamera>();
+
+            if (gameObjectToBuildingItems[i].gameObject.TryGetComponent(out PreparerTo3DSnapshot preparerTo3DSnapshot))
+            {
+                preparerTo3DSnapshot.Prepare();
+            }
+
             if (!snapshotCamera)
             {
                 Debug.LogError("SnapshotCamera didn't find");
@@ -35,6 +41,11 @@ public class ObjectsToImages : MonoBehaviour
                     "{0}/RenderedImages/{1}.png",
                     Application.dataPath,
                     buildingItemList.buildingItems[i].name));
+            }
+
+            if (preparerTo3DSnapshot)
+            {
+                preparerTo3DSnapshot.ResetToPrevious();
             }
 
             gameObjectToBuildingItems[i].gameObject.SetActive(false);

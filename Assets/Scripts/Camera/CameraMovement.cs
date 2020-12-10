@@ -23,6 +23,9 @@ public class CameraMovement : MonoBehaviour
     public bool needDrawGizmos = false;
     public float gizmosSphereSize = 0.1f;
 
+    [HideInInspector]
+    public Vector3 playerMainBasePosition = Vector3.zero;
+
 
     private Vector3 clickedPointOnPlaneFromMouse = Vector3.zero;
     private Vector3 clickedPointOnPlaneFromCenterPoint = Vector3.zero;
@@ -41,6 +44,20 @@ public class CameraMovement : MonoBehaviour
     private bool isLeftMouseButtonPressed = false;
 
     private int currentZoomStep = -1;
+
+
+    public void SetCameraViewToMainBase()
+    {
+        if (IntersectionCenterPointRayWithXOZPlane(out Vector3 enter))
+        {
+            transform.position += playerMainBasePosition - enter;
+        }
+        else
+        {
+            Debug.LogError("Center Point isn't intersected with xOz plane");
+        }
+    }
+
 
     private void Move()
     {
@@ -199,6 +216,11 @@ public class CameraMovement : MonoBehaviour
         if (freezer.IsInteractionFreeze)
         {
             return;
+        }
+
+        if (Input.GetKeyDown(KeyCode.F))
+        {
+            SetCameraViewToMainBase();
         }
 
         if (Input.GetMouseButtonDown((int) MouseButton.MiddleMouse) ||

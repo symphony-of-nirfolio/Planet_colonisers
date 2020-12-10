@@ -13,11 +13,11 @@ public class HexCellInfoMenu : MonoBehaviour
 
     private Coroutine resourceAmountUpdater;
 
-    public void Show(WorldGenerator.HexCellInfo hexCellInfo)
+    public void Show(WorldMap.HexCellInfo hexCellInfo)
     {
         panelRectTransform.gameObject.SetActive(true);
 
-        typeValueText.text = (hexCellInfo.hexType & ~WorldGenerator.HexType.Building).ToString();
+        typeValueText.text = (hexCellInfo.hexType & ~WorldMap.HexType.Building).ToString();
         extraValueText.text = hexCellInfo.shortDescription;
 
         Vector3 mousePosition = Input.mousePosition;
@@ -59,7 +59,7 @@ public class HexCellInfoMenu : MonoBehaviour
         panelRectTransform.pivot = pivot;
         panelRectTransform.position = panelPosition;
 
-        if ((hexCellInfo.hexType & WorldGenerator.HexType.AllResources) != WorldGenerator.HexType.None)
+        if ((hexCellInfo.hexType & WorldMap.HexType.AllResources) != WorldMap.HexType.None)
         {
             amountText.gameObject.SetActive(true);
             amountValueText.gameObject.SetActive(true);

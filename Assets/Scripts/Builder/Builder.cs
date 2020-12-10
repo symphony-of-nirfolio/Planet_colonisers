@@ -5,7 +5,7 @@ public class Builder : MonoBehaviour
 {
     public Freezer freezer;
     public Camera mainCamera;
-    public WorldGenerator worldGenerator;
+    public WorldMap worldMap;
 
     public Transform buildingsTransform;
 
@@ -13,6 +13,7 @@ public class Builder : MonoBehaviour
     public Color invalidPositionColor;
 
     public float preViewOffset = 0.01f;
+    public int colonyRaduis = 6;
 
     private GameObject currentBuildingPrefab = null;
     private GameObject currentBuilding = null;
@@ -71,14 +72,53 @@ public class Builder : MonoBehaviour
 
             if (isCurrentBuildResourceExtractor)
             {
-                ResourceDeposit resourceDeposit = worldGenerator.GetResourceDeposit(position);
+                ResourceDeposit resourceDeposit = worldMap.GetResourceDeposit(position);
                 Debug.Assert(resourceDeposit, "Resource Deposit is null");
 
                 ResourceExtractor resourceExtractor = building.GetComponent<ResourceExtractor>();
                 resourceExtractor.SetDeposit(resourceDeposit);
             }
 
-            worldGenerator.AddBuildingToHexCell(position, building);
+            bool isRoad = building.TryGetComponent(out RoadUpdater roadUpdater);
+
+            if (isRoad)
+            {
+                worldMap.AddRoadToHexCell(position, building);
+            }
+            else
+            {
+                worldMap.AddBuildingToHexCell(position, building);
+            }
+
+            WorldMap.DoubleCircleOfHexCellsAround doubleCircleOfHexCellsAround =
+                worldMap.GetDoubleCircleOfHexCellsAround(position);
+
+            if (isRoad)
+            {
+                roadUpdater.UpdateRoad(doubleCircleOfHexCellsAround.firstCircle);
+            }
+            for (int i = 0; i < WorldMap.cellNeighbourAmount; ++i)
+            {
+                WorldMap.HexCellsAround hexCellsAround = doubleCircleOfHexCellsAround.secondCircles[i];
+                if ((hexCellsAround.centerCell.hexType & WorldMap.HexType.Road) == WorldMap.HexType.Road)
+                {
+                    if (hexCellsAround.centerCell.road)
+                    {
+                        if (hexCellsAround.centerCell.road.TryGetComponent(out RoadUpdater currentRoadUpdater))
+                        {
+                            currentRoadUpdater.UpdateRoad(hexCellsAround);
+                        }
+                        else
+                        {
+                            Debug.LogError("Game object doesn't contain road updater");
+                        }
+                    }
+                    else
+                    {
+                        Debug.LogError("Road game object is empty");
+                    }
+                }
+            }
         }
     }
 
@@ -95,10 +135,10 @@ public class Builder : MonoBehaviour
             Debug.LogError("Main Camera doesn't set");
             mainCamera = Camera.main;
         }
-        if (!worldGenerator)
+        if (!worldMap)
         {
-            Debug.LogError("World Generator doesn't set");
-            worldGenerator = FindObjectOfType<WorldGenerator>();
+            Debug.LogError("World map doesn't set");
+            worldMap = FindObjectOfType<WorldMap>();
         }
 
         if (!buildingsTransform)
@@ -123,8 +163,6 @@ public class Builder : MonoBehaviour
         if (!freezer.IsInteractionFreeze &&
             Utils.IntersectionMouseRayWithXOZPlane(mainCamera, out Vector3 enter))
         {
-            bool isValidPlace = true;
-
             if (!currentBuilding)
             {
                 UpdateCurrentBuilding();
@@ -132,11 +170,12 @@ public class Builder : MonoBehaviour
 
             if (currentBuilding)
             {
-                Vector3 hexCenter = worldGenerator.GetHexCenterPosition(enter);
-                bool isHexContainsResource = worldGenerator.IsHexContainsResource(enter);
+                Vector3 hexCenter = worldMap.GetHexCenterPosition(enter);
+                bool isHexContainsResource = worldMap.IsHexContainsResource(enter);
 
-                isValidPlace = worldGenerator.IsHexAvailableForBuilding(enter);
+                bool isValidPlace = worldMap.IsHexAvailableForBuilding(enter);
                 isValidPlace &= isCurrentBuildResourceExtractor == isHexContainsResource;
+                isValidPlace &= worldMap.Distance(worldMap.GetPositoinByColonyMainBase(worldMap.colonyMainBaseArray[0]), hexCenter) <= colonyRaduis;
 
                 currentBuilding.transform.position = hexCenter + Vector3.up * preViewOffset;
                 currentBuildHelper.SetMaterialColor(isValidPlace ? validPositionColor : invalidPositionColor);

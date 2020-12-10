@@ -1475,11 +1475,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   freezer: {fileID: 1455036428}
   mainCamera: {fileID: 920385387}
-  worldGenerator: {fileID: 617868770}
+  worldMap: {fileID: 617868771}
   buildingsTransform: {fileID: 814053539}
   validPositionColor: {r: 0.019017458, g: 1, b: 0, a: 1}
   invalidPositionColor: {r: 1, g: 0, b: 0, a: 1}
   preViewOffset: 0.01
+  colonyRaduis: 6
 --- !u!4 &545683698
 Transform:
   m_ObjectHideFlags: 0
@@ -1753,6 +1754,10 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 3146374057374408728, guid: 86cf3883be741d94890e267154165a0a, type: 3}
+      propertyPath: freezer
+      value: 
+      objectReference: {fileID: 1455036428}
+    - target: {fileID: 3146374057374408728, guid: 86cf3883be741d94890e267154165a0a, type: 3}
       propertyPath: mainCamera
       value: 
       objectReference: {fileID: 920385387}
@@ -1760,6 +1765,10 @@ PrefabInstance:
       propertyPath: planeRenderer
       value: 
       objectReference: {fileID: 130540916}
+    - target: {fileID: 3146374057374408728, guid: 86cf3883be741d94890e267154165a0a, type: 3}
+      propertyPath: cameraMovement
+      value: 
+      objectReference: {fileID: 920385389}
     - target: {fileID: 3146374057374408728, guid: 86cf3883be741d94890e267154165a0a, type: 3}
       propertyPath: gameParameters
       value: 
@@ -1812,6 +1821,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8096949531905927395, guid: 86cf3883be741d94890e267154165a0a, type: 3}
+      propertyPath: gameParameters
+      value: 
+      objectReference: {fileID: 814061555}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 86cf3883be741d94890e267154165a0a, type: 3}
 --- !u!114 &617868770 stripped
@@ -1823,6 +1836,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1ba78ddf929228745ba948446e7f6c15, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &617868771 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8096949531905927395, guid: 86cf3883be741d94890e267154165a0a, type: 3}
+  m_PrefabInstance: {fileID: 617868769}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fbf44940e49d8d647aaaf966fde2d227, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &638704439
@@ -2860,6 +2884,7 @@ MonoBehaviour:
   maxCameraRollAngle: 60
   needDrawGizmos: 0
   gizmosSphereSize: 0.1
+  playerMainBasePosition: {x: 0, y: 0, z: 0}
 --- !u!81 &920385390
 AudioListener:
   m_ObjectHideFlags: 0
@@ -5647,6 +5672,10 @@ PrefabInstance:
       propertyPath: freezer
       value: 
       objectReference: {fileID: 1455036428}
+    - target: {fileID: 5031850218424351887, guid: a061a556c2ed54b4ab990f4ed77da70f, type: 3}
+      propertyPath: worldMap
+      value: 
+      objectReference: {fileID: 617868771}
     - target: {fileID: 5031850218424351887, guid: a061a556c2ed54b4ab990f4ed77da70f, type: 3}
       propertyPath: mainCamera
       value: 
