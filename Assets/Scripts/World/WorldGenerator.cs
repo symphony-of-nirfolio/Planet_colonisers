@@ -6,6 +6,7 @@ public class WorldGenerator : MonoBehaviour
     public GameParameters gameParameters;
     public Camera mainCamera;
     public WorldMap worldMap;
+    public CameraMovement cameraMovement;
 
     public LimitedMinedResourceInfoList limitedMinedResourceInfoList;
     public Camera resourceCamera;
@@ -356,6 +357,9 @@ public class WorldGenerator : MonoBehaviour
         InitColonyMainBases(seed + coloniesOffset);
 
         SetResourcePrefabs();
+
+        cameraMovement.playerMainBasePosition = worldMap.GetPositoinByColonyMainBase(worldMap.colonyMainBaseArray[0]);
+        cameraMovement.SetCameraViewToMainBase();
     }
 
 
@@ -364,6 +368,7 @@ public class WorldGenerator : MonoBehaviour
         Utils.CheckFieldNotNullAndTryToSet(ref gameParameters, "Game Parameters");
         Utils.CheckMainCameraNotNullAndTryToSet(ref mainCamera);
         Utils.CheckFieldNotNullAndTryToSet(ref worldMap, "World map");
+        Utils.CheckFieldNotNullAndTryToSet(ref cameraMovement, "Camera Movement");
         Utils.CheckFieldNotNull(limitedMinedResourceInfoList, "Limited Mined Resource Info List");
         Utils.CheckFieldNotNull(resourceCamera, "Resource Camera");
         Utils.CheckFieldNotNull(resourceRenderer, "Resource Renderer");

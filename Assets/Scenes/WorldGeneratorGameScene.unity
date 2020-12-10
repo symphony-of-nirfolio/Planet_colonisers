@@ -739,6 +739,7 @@ MonoBehaviour:
   maxCameraRollAngle: 60
   needDrawGizmos: 0
   gizmosSphereSize: 0.1
+  playerMainBasePosition: {x: 0, y: 0, z: 0}
 --- !u!81 &118888796
 AudioListener:
   m_ObjectHideFlags: 0
@@ -3885,6 +3886,7 @@ MonoBehaviour:
   validPositionColor: {r: 0.019017458, g: 1, b: 0, a: 1}
   invalidPositionColor: {r: 1, g: 0, b: 0, a: 1}
   preViewOffset: 0.01
+  colonyRaduis: 6
 --- !u!4 &1292014377
 Transform:
   m_ObjectHideFlags: 0
@@ -4672,6 +4674,10 @@ PrefabInstance:
       propertyPath: planeRenderer
       value: 
       objectReference: {fileID: 103591810}
+    - target: {fileID: 3146374057374408728, guid: 86cf3883be741d94890e267154165a0a, type: 3}
+      propertyPath: cameraMovement
+      value: 
+      objectReference: {fileID: 118888795}
     - target: {fileID: 3146374057374408728, guid: 86cf3883be741d94890e267154165a0a, type: 3}
       propertyPath: gameParameters
       value: 
