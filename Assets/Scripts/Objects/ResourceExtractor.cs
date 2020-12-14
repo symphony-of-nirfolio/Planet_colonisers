@@ -16,6 +16,7 @@ class ResourceExtractor : MonoBehaviour
     public float resourceGatherTime = 3.0f;
     public float resourcesPerGather = 1.0f;
     private float timer = 0.0f;
+    private int ownerId = 0;
 
     private void Start()
     {
@@ -50,12 +51,22 @@ class ResourceExtractor : MonoBehaviour
         {
             deposit.GetResourceFromDeposit(resourcesPerGather);
             inventory.AddResource(resourceType, resourcesPerGather);
-            globalStorage.GetComponent<GlobalStorage>().AddResource(resourceType, resourcesPerGather);
+            globalStorage.GetComponent<GlobalStorage>().AddResource(resourceType, resourcesPerGather, ownerId);
         }
     }
 
     public void SetResourceType(GameResourceType resourceType)
     {
         this.resourceType = resourceType;
+    }
+
+    public void SetOwnerId(int id)
+    {
+        ownerId = id;
+    }
+
+    public int GetOwnerId()
+    {
+        return ownerId;
     }
 }

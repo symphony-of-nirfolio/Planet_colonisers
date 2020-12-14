@@ -24,6 +24,31 @@ public class GlobalStorage : MonoBehaviour
             timeSinceRefresh -= refreshTime;
             personalResourcesUI.GetComponent<PersonalResourcesMenu>().UpdateResources(userStorages[currentMainPlayer]);
         }
+
+        if (Debug.isDebugBuild)
+        {
+            if (Input.GetKeyDown("0"))
+            {
+                currentMainPlayer = 0;
+            }
+            else if (Input.GetKeyDown("1"))
+            {
+                currentMainPlayer = 1;
+            }
+            else if (Input.GetKeyDown("2"))
+            {
+                currentMainPlayer = 2;
+            }
+            else if (Input.GetKeyDown("3"))
+            {
+                currentMainPlayer = 3;
+            }
+            else if (Input.GetKeyDown("4"))
+            {
+                currentMainPlayer = 4;
+            }
+        }
+        
     }
 
     public void AddResource(GameResourceType resource, float count, int userId = -1)
@@ -51,7 +76,7 @@ public class GlobalStorage : MonoBehaviour
         return userStorages.Count - 1;
     }
 
-    public int CurrentMainPlayer()
+    public int CurrentMainPlayerId()
     {
         return currentMainPlayer;
     }

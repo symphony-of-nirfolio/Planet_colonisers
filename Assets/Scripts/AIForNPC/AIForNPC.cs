@@ -19,6 +19,8 @@ public class AIForNPC : MonoBehaviour
     private float previousTime = 0f;
     private int currentSeed = 0;
 
+    public int id;
+
     
     private void UpdateSeed()
     {
@@ -40,6 +42,7 @@ public class AIForNPC : MonoBehaviour
 
                 ResourceExtractor resourceExtractor = building.GetComponent<ResourceExtractor>();
                 resourceExtractor.SetDeposit(resourceDeposit);
+                resourceExtractor.SetOwnerId(id);
 
                 worldMap.AddBuildingToHexCell(hexCellInfo.position, building);
 
@@ -78,6 +81,10 @@ public class AIForNPC : MonoBehaviour
         hexCellInfos = worldMap.GetHexInfoRings(transform.position, 1, colonyRaduis);
         UpdateSeed();
         Utils.Shuffle(hexCellInfos, currentSeed);
+
+
+        GameObject globalStorage = GameObject.Find("GlobalStorage");
+        id = globalStorage.GetComponent<GlobalStorage>().AddNewPlayer();
     }
 
     private void Update()

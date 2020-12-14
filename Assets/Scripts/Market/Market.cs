@@ -73,12 +73,17 @@ public class Market : MonoBehaviour
         return marketStorage.getResourceAmount(res);
     }
 
-    public bool Trade(GameResource res1, GameResource res2)
+    public bool Trade(GameResource res1, GameResource res2, int traderId=-1)
     {
         if (needsToRefresh)
             return false;
 
         tradeMutex.WaitOne();
+
+        if (traderId == -1)
+        {
+            traderId = globalStorage.GetComponent<GlobalStorage>().CurrentMainPlayerId();
+        }
 
         bool isSuccessfullTrade = false;
         if (res2.amount <= marketStorage.getResourceAmount(res2.resourceType))
