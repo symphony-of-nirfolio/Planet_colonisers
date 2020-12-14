@@ -4,13 +4,15 @@ using UnityEngine;
 
 public class GlobalStorage : MonoBehaviour
 {
-    private GameResourcesStorage storage;
+    private List<GameResourcesStorage> userStorages;
     private GameObject personalResourcesUI;
     public float refreshTime = 2;
     private float timeSinceRefresh = 0;
+    private int currentMainPlayer = 0;
     void Start()
     {
-        storage = new GameResourcesStorage();
+        userStorages = new List<GameResourcesStorage>();
+        userStorages.Add(new GameResourcesStorage(20));
         personalResourcesUI = GameObject.Find("GameMenuUI/Canvas/NoClosableMenus/PersonalResourcesMenu/Panel/PersonalResourcesMenu");
     }
 
@@ -20,17 +22,42 @@ public class GlobalStorage : MonoBehaviour
         if (timeSinceRefresh > refreshTime)
         {
             timeSinceRefresh -= refreshTime;
-            personalResourcesUI.GetComponent<PersonalResourcesMenu>().UpdateResources(storage);
+            personalResourcesUI.GetComponent<PersonalResourcesMenu>().UpdateResources(userStorages[currentMainPlayer]);
         }
     }
 
-    public void AddResource(GameResourceType resource, float count)
+    public void AddResource(GameResourceType resource, float count, int userId = -1)
     {
-        storage.AddResource(resource, count);
+        if (userId == -1)
+        {
+            userId = currentMainPlayer;
+        }
+        userStorages[userId].AddResource(resource, count);
     }
 
-    public void RemoveResource(GameResourceType resource, float count)
+    public void RemoveResource(GameResourceType resource, float count, int userId = -1)
     {
-        storage.RemoveResource(resource, count);
+        if (userId == -1)
+        {
+            userId = currentMainPlayer;
+        }
+        userStorages[userId].RemoveResource(resource, count);
+    }
+
+    // Creates new player inventory and returs it's id
+    public int AddNewPlayer()
+    {
+        userStorages.Add(new GameResourcesStorage());
+        return userStorages.Count - 1;
+    }
+
+    public int CurrentMainPlayer()
+    {
+        return currentMainPlayer;
+    }
+
+    public void SetCurrentMainPlayer(int playerId)
+    {
+        currentMainPlayer = playerId;
     }
 }
