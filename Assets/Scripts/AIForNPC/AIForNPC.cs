@@ -19,7 +19,7 @@ public class AIForNPC : MonoBehaviour
     private float previousTime = 0f;
     private int currentSeed = 0;
 
-    public int id;
+    private int id;
 
     
     private void UpdateSeed()
