@@ -80,7 +80,7 @@ public class MarketMenu : MonoBehaviour
 
     public void Trade()
     {
-        // TODO: call trade from market
+        market.Trade(new GameResource((GameResourceType) currentSellItemIndex, currentSellValue), new GameResource((GameResourceType) currentBuyItemIndex, currentBuyValue));
     }
 
     public void SetMenuToOpen()
@@ -96,7 +96,7 @@ public class MarketMenu : MonoBehaviour
 
     private void UpdateUIValues()
     {
-        float tradeRate = market.GetResourceTradeRate((GameResourceType) currentBuyItemIndex, (GameResourceType) currentSellItemIndex);
+        float tradeRate = market.GetResourceTradeRate((GameResourceType) currentSellItemIndex, (GameResourceType) currentBuyItemIndex);
         currentBuyValue = currentSellValue * tradeRate;
         buyValueText.text = ((int) currentBuyValue).ToString();
 

@@ -7,6 +7,7 @@ public class Market : MonoBehaviour
 {
     private GameResourcesStorage initialMarketStorage;
     private GameResourcesStorage marketStorage;
+    private GlobalStorage globalStorage; 
     private float[] prices = new float[GameResourcesStorage.resourceCount];
     private float[] initialPrices = new float[GameResourcesStorage.resourceCount];
 
@@ -32,6 +33,8 @@ public class Market : MonoBehaviour
             prices[i] = 500;
             initialPrices[i] = 500;
         }
+
+        globalStorage = FindObjectOfType<GlobalStorage>();
     }
 
     void Update()
@@ -46,6 +49,7 @@ public class Market : MonoBehaviour
         {
             sinceLastRefresh -= forcedRefreshTime;
             RefreshPrices();
+            needsToRefresh = false;
         }
         
     }
@@ -58,7 +62,7 @@ public class Market : MonoBehaviour
         }
     }
 
-    // returns how many res can be purchaded for 1 res1
+    // returns how many res2 can be purchaded for 1 res1
     public float GetResourceTradeRate(GameResourceType res1, GameResourceType res2)
     {
         return prices[(int)res1] / prices[(int)res2];
@@ -69,19 +73,25 @@ public class Market : MonoBehaviour
         return marketStorage.getResourceAmount(res);
     }
 
-    public bool Trade(GameResource res1, GameResource res2)
+    public bool Trade(GameResource res1, GameResource res2, int traderId=-1)
     {
         if (needsToRefresh)
             return false;
 
         tradeMutex.WaitOne();
 
-        bool isSuccessfullTrade = false;
-        if (res1.amount > marketStorage.getResourceAmount(res1.resourceType) &&
-           res2.amount > marketStorage.getResourceAmount(res2.resourceType))
+        if (traderId == -1)
         {
-            marketStorage.RemoveResource(res1.resourceType, res1.amount);
+            traderId = globalStorage.CurrentMainPlayerId();
+        }
+
+        bool isSuccessfullTrade = false;
+        if (res2.amount <= marketStorage.getResourceAmount(res2.resourceType))
+        {
+            globalStorage.RemoveResource(res1.resourceType, res1.amount);
+            marketStorage.AddResource(res1.resourceType, res1.amount);
             marketStorage.RemoveResource(res2.resourceType, res2.amount);
+            globalStorage.AddResource(res2.resourceType, res2.amount);
             isSuccessfullTrade = true;
             needsToRefresh = true;
         }
