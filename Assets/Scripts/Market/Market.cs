@@ -7,7 +7,7 @@ public class Market : MonoBehaviour
 {
     private GameResourcesStorage initialMarketStorage;
     private GameResourcesStorage marketStorage;
-    private GameObject globalStorage; 
+    private GlobalStorage globalStorage; 
     private float[] prices = new float[GameResourcesStorage.resourceCount];
     private float[] initialPrices = new float[GameResourcesStorage.resourceCount];
 
@@ -34,7 +34,7 @@ public class Market : MonoBehaviour
             initialPrices[i] = 500;
         }
 
-        globalStorage = GameObject.Find("GlobalStorage");
+        globalStorage = FindObjectOfType<GlobalStorage>();
     }
 
     void Update()
@@ -82,16 +82,16 @@ public class Market : MonoBehaviour
 
         if (traderId == -1)
         {
-            traderId = globalStorage.GetComponent<GlobalStorage>().CurrentMainPlayerId();
+            traderId = globalStorage.CurrentMainPlayerId();
         }
 
         bool isSuccessfullTrade = false;
         if (res2.amount <= marketStorage.getResourceAmount(res2.resourceType))
         {
-            globalStorage.GetComponent<GlobalStorage>().RemoveResource(res1.resourceType, res1.amount);
+            globalStorage.RemoveResource(res1.resourceType, res1.amount);
             marketStorage.AddResource(res1.resourceType, res1.amount);
             marketStorage.RemoveResource(res2.resourceType, res2.amount);
-            globalStorage.GetComponent<GlobalStorage>().AddResource(res2.resourceType, res2.amount);
+            globalStorage.AddResource(res2.resourceType, res2.amount);
             isSuccessfullTrade = true;
             needsToRefresh = true;
         }

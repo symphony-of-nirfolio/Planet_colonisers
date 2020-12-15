@@ -5,7 +5,7 @@ using UnityEngine;
 public class GlobalStorage : MonoBehaviour
 {
     private List<GameResourcesStorage> userStorages;
-    private GameObject personalResourcesUI;
+    private PersonalResourcesMenu personalResourcesUI;
     public float refreshTime = 2;
     private float timeSinceRefresh = 0;
     private int currentMainPlayer = 0;
@@ -13,7 +13,7 @@ public class GlobalStorage : MonoBehaviour
     {
         userStorages = new List<GameResourcesStorage>();
         userStorages.Add(new GameResourcesStorage(20));
-        personalResourcesUI = GameObject.Find("GameMenuUI/Canvas/NoClosableMenus/PersonalResourcesMenu/Panel/PersonalResourcesMenu");
+        personalResourcesUI = FindObjectOfType<PersonalResourcesMenu>();
     }
 
     void Update()
@@ -22,7 +22,7 @@ public class GlobalStorage : MonoBehaviour
         if (timeSinceRefresh > refreshTime)
         {
             timeSinceRefresh -= refreshTime;
-            personalResourcesUI.GetComponent<PersonalResourcesMenu>().UpdateResources(userStorages[currentMainPlayer]);
+            personalResourcesUI.UpdateResources(userStorages[currentMainPlayer]);
         }
 
         if (Debug.isDebugBuild)

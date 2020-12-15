@@ -82,9 +82,7 @@ public class AIForNPC : MonoBehaviour
         UpdateSeed();
         Utils.Shuffle(hexCellInfos, currentSeed);
 
-
-        GameObject globalStorage = GameObject.Find("GlobalStorage");
-        id = globalStorage.GetComponent<GlobalStorage>().AddNewPlayer();
+        id = FindObjectOfType<GlobalStorage>().AddNewPlayer();
     }
 
     private void Update()
