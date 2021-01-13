@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7cace8b7d44bb1c47a9cc940b4005c23, type: 3}
+  m_Name: GameResourceSpriteList
+  m_EditorClassIdentifier: 
+  resourceSprites:
+  - {fileID: 11400000, guid: d4f7ab8bac94c5d419cb2d6f0d422083, type: 2}
+  - {fileID: 11400000, guid: 322d9036337b461479c6e907557c05a0, type: 2}
+  - {fileID: 11400000, guid: 24f8fbec3f4e11041a5306bfdc50db26, type: 2}
+  - {fileID: 11400000, guid: 602b49e9abd162f4598cd1b35f420ffa, type: 2}
+  - {fileID: 11400000, guid: cddc45fb433ad794a992a804e0fb41fc, type: 2}
+  - {fileID: 11400000, guid: bb3a2fe86d879f548a5a5c29e1de3bb4, type: 2}
+  - {fileID: 11400000, guid: b94242886bc35484b933d9c21a0b4c50, type: 2}
+  - {fileID: 11400000, guid: 8e5da3d2263eb9e46a948acd1dd836aa, type: 2}
+  - {fileID: 11400000, guid: ca2d3c14b04420844bbcca9466e14777, type: 2}
+  - {fileID: 11400000, guid: 4f369ee61c6774d478432ba76cd9519e, type: 2}
+  - {fileID: 11400000, guid: 9b0408843b2f7b34994cb43774033811, type: 2}
+  - {fileID: 11400000, guid: 847cbbc23dc4fa542bf05be4c5303d1d, type: 2}
